@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Edit Event{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/edit_event.css') }}">
+
+<div class="dashboard-header">
+    <h1>Edit Event</h1>
+    <p class="subtitle">Update event details and target year levels</p>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h3>Event Details</h3>
+    </div>
+    <div class="card-content">
+        <form method="post" action="{{ url_for('edit_event', event_id=event.id) }}" class="event-form">
+            <div class="form-group">
+                <label>Event Name</label>
+                <input type="text" name="name" value="{{ event.name }}" required placeholder="Enter event name">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="date" value="{{ event.date }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Required Hours</label>
+                    <input type="number" step="0.1" name="required_hours" value="{{ event.required_hours }}" required min="0.1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Target Year Levels</label>
+                <div class="checkbox-group" id="yearLevelContainer">
+                    <label class="checkbox-label all-checkbox">
+                        <input type="checkbox" name="target_years" value="all" id="allYearsCheckbox" onclick="toggleYearSelection(this)"
+                            {% if event.target_years == 'all' %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        All Year Levels
+                    </label>
+                    <div class="year-level-grid" id="yearLevelGrid">
+                        {% for yl in year_levels %}
+                        <label class="checkbox-label" data-academic-year="{{ yl.academic_year_id }}">
+                            <input type="checkbox" name="target_years" value="{{ yl.id }}">
+                            <span class="checkmark"></span>
+                            {{ yl.level }}{% if yl.level==1 %}st{% elif yl.level==2 %}nd{% elif yl.level==3 %}rd{% else %}th{% endif %} Year - {{ yl.section }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <span class="btn-icon">💾</span>
+                    Update Event
+                </button>
+                <a href="{{ url_for('events') }}" class="btn-secondary">
+                    <span class="btn-icon">←</span>
+                    Back to Events
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const academicYears = [
+    {% for ay in academic_years %}
+    {
+        id: {{ ay.id }},
+        year: "{{ ay.year }}",
+        semesters: [
+            {% for sem in ay.semesters %}
+            { start_date: "{{ sem.start_date }}", end_date: "{{ sem.end_date }}" }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+const dateInput = document.querySelector('input[name="date"]');
+const yearLevelContainer = document.getElementById('yearLevelContainer');
+const yearLevelLabels = document.querySelectorAll('#yearLevelGrid .checkbox-label');
+const allCheckbox = document.getElementById('allYearsCheckbox');
+
+// Parse event.target_years into an array
+let targetYears = [];
+{% if event.target_years != 'all' %}
+targetYears = "{{ event.target_years }}".split(',').map(s => s.trim());
+{% endif %}
+
+function updateYearLevels() {
+    if (!dateInput.value) {
+        yearLevelContainer.style.display = 'none';
+        return;
+    }
+
+    const selectedDate = new Date(dateInput.value + 'T00:00:00');
+    yearLevelContainer.style.display = 'block';
+
+    const matchingAY = academicYears.find(ay => {
+        if (!ay.semesters.length) return false;
+        const start = new Date(ay.semesters[0].start_date + 'T00:00:00');
+        const end = new Date(ay.semesters[ay.semesters.length - 1].end_date + 'T00:00:00');
+        return selectedDate >= start && selectedDate <= end;
+    });
+
+    let allChecked = true;
+
+    yearLevelLabels.forEach(label => {
+        const checkbox = label.querySelector('input');
+        const academicYearId = parseInt(label.dataset.academicYear, 10);
+
+        if (matchingAY && academicYearId === parseInt(matchingAY.id, 10)) {
+            label.style.display = 'block';
+            checkbox.disabled = false;
+
+            // Pre-check based on targetYears
+            if (targetYears.length) {
+                checkbox.checked = targetYears.includes(checkbox.value);
+            } else if ("{{ event.target_years }}" === 'all') {
+                checkbox.checked = true;
+            } else {
+                checkbox.checked = false;
+                allChecked = false;
+            }
+
+            if (!checkbox.checked) allChecked = false;
+        } else {
+            label.style.display = 'none';
+            checkbox.checked = false;
+            checkbox.disabled = true;
+            allChecked = false;
+        }
+    });
+
+    allCheckbox.checked = allChecked;
+    allCheckbox.disabled = !matchingAY;
+}
+
+// Initialize on load
+updateYearLevels();
+dateInput.addEventListener('change', updateYearLevels);
+
+function toggleYearSelection(allCb) {
+    yearLevelLabels.forEach(label => {
+        const checkbox = label.querySelector('input');
+        if (!checkbox.disabled) checkbox.checked = allCb.checked;
+    });
+}
+
+yearLevelLabels.forEach(label => {
+    const cb = label.querySelector('input');
+    cb.addEventListener('change', () => {
+        const visibleCheckboxes = Array.from(yearLevelLabels)
+            .filter(l => l.style.display !== 'none')
+            .map(l => l.querySelector('input'));
+        allCheckbox.checked = visibleCheckboxes.length > 0 && visibleCheckboxes.every(c => c.checked);
+    });
+});
+</script>
+
+
+
+{% endblock %}

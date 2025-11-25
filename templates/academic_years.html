@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Academic Years{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/academic_years.css') }}">
+
+<div id="academic-year-section">
+
+    <!-- Add Academic Year Card -->
+    <div class="content-card" id="add-academic-year-card">
+        <h2>Add Academic Year</h2>
+        <form method="post" action="{{ url_for('add_academic_year') }}" id="add-academic-year-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="year-input">Year:</label>
+                    <input type="text" name="year" id="year-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="status-select">Status:</label>
+                    <select name="status" id="status-select">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row semester-group">
+                <h4>1st Semester</h4>
+                <label for="semester1-start">Start:</label>
+                <input type="date" name="start1" id="semester1-start" required value="2025-08-01">
+                <label for="semester1-end">End:</label>
+                <input type="date" name="end1" id="semester1-end" required value="2025-12-25">
+            </div>
+
+            <div class="form-row semester-group">
+                <h4>2nd Semester</h4>
+                <label for="semester2-start">Start:</label>
+                <input type="date" name="start2" id="semester2-start" required value="2026-01-01">
+                <label for="semester2-end">End:</label>
+                <input type="date" name="end2" id="semester2-end" required value="2026-05-30">
+            </div>
+
+            <button type="submit" class="btn-primary">Add Academic Year</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- Existing Academic Years Table -->
+    <div class="content-card" id="existing-academic-years-card">
+        <h2>Existing Academic Years</h2>
+        <div class="table-container">
+            <table class="ay-table" id="academic-years-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Year</th>
+                        <th>Status</th>
+                        <th>1st Semester Start</th>
+                        <th>1st Semester End</th>
+                        <th>2nd Semester Start</th>
+                        <th>2nd Semester End</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ay in years %}
+                    <tr class="ay-row">
+                        <form method="post" action="{{ url_for('edit_academic_year', ay_id=ay.id) }}">
+                            <td>{{ ay.id }}</td>
+                            <td>
+                                <input type="text" name="year" value="{{ ay.year }}" class="input-year">
+                            </td>
+                            <td>
+                                <select name="status" class="select-status">
+                                    <option value="active" {% if ay.status=='active' %}selected{% endif %}>Active</option>
+                                    <option value="inactive" {% if ay.status=='inactive' %}selected{% endif %}>Inactive</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="date" name="start1" value="{{ ay.semesters[0].start_date if ay.semesters|length >=1 and ay.semesters[0] else '' }}" class="input-semester-start1">
+                            </td>
+                            <td>
+                                <input type="date" name="end1" value="{{ ay.semesters[0].end_date if ay.semesters|length >=1 and ay.semesters[0] else '' }}" class="input-semester-end1">
+                            </td>
+                            <td>
+                                <input type="date" name="start2" value="{{ ay.semesters[1].start_date if ay.semesters|length >=2 and ay.semesters[1] else '' }}" class="input-semester-start2">
+                            </td>
+                            <td>
+                                <input type="date" name="end2" value="{{ ay.semesters[1].end_date if ay.semesters|length >=2 and ay.semesters[1] else '' }}" class="input-semester-end2">
+                            </td>
+                            <td class="actions-cell">
+                                <button type="submit" class="btn-update">Update</button>
+                                <a href="{{ url_for('delete_academic_year', ay_id=ay.id) }}" class="btn-delete" onclick="return confirm('Delete this academic year?')">Delete</a>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Flashed messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashed-messages">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+</div>
+{% endblock %}

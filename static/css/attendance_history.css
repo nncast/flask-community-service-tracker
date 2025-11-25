@@ -1,0 +1,198 @@
+/* Attendance History Styles */
+
+/* History Controls */
+.history-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #7c3aed;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 8px 12px 8px 32px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    width: 250px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #7c3aed;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    color: #94a3b8;
+    font-size: 0.9em;
+}
+
+/* Table Container */
+.table-container {
+    border-radius: 8px;
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+}
+
+/* Attendance History Table */
+.attendance-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.attendance-history-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    padding: 12px;
+    font-size: 0.9em;
+    text-align: left;
+}
+
+.attendance-history-table td {
+    border: 1px solid #e2e8f0;
+    padding: 12px;
+    font-size: 0.9em;
+}
+
+.attendance-history-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Cell Styles */
+.timestamp-cell {
+    white-space: nowrap;
+}
+
+.timestamp {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.date {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.9em;
+}
+
+.time {
+    color: #64748b;
+    font-size: 0.8em;
+}
+
+.hours-cell {
+    text-align: center;
+    font-weight: 600;
+}
+
+.old-hours {
+    color: #ef4444;
+}
+
+.new-hours {
+    color: #10b981;
+}
+
+.change-cell {
+    text-align: center;
+}
+
+.change-amount {
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.change-amount.positive {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.change-amount.negative {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.reason-cell {
+    color: #64748b;
+    font-style: italic;
+    max-width: 200px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.empty-icon {
+    font-size: 3em;
+    margin-bottom: 16px;
+    display: block;
+    opacity: 0.5;
+}
+
+/* Buttons */
+.btn-primary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #7c3aed;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background: #6d28d9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .history-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+    
+    .table-container {
+        font-size: 0.85em;
+    }
+    
+    .attendance-history-table th,
+    .attendance-history-table td {
+        padding: 8px;
+    }
+}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Attendance Change History{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/attendance_history.css') }}">
+
+<div class="dashboard-header">
+    <h1>Attendance Change History</h1>
+    <p class="subtitle">Track all changes made to students' attendance records</p>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h3>Activity Log</h3>
+        <div class="history-controls">
+            <select id="timeFilter" class="filter-select">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search students or events..." class="search-input">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-content">
+        <div class="table-container">
+            <table class="attendance-history-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Student</th>
+                        <th>Event</th>
+                        <th>Old Hours</th>
+                        <th>New Hours</th>
+                        <th>Change</th>
+                        <th>Changed By</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr class="history-row"
+                        data-date="{{ log.changed_at.strftime('%Y-%m-%d') }}"
+                        data-student="{{ log.attendance.student.fname }} {{ log.attendance.student.lname }}"
+                        data-event="{{ log.attendance.event.name }}">
+                        <td class="timestamp-cell">
+                            <div class="timestamp">
+                                <div class="date">{{ log.changed_at.strftime("%Y-%m-%d") }}</div>
+                                <div class="time">{{ log.changed_at.strftime("%H:%M") }}</div>
+                            </div>
+                        </td>
+                        <td class="student-cell">
+                            {{ log.attendance.student.fname }} {{ log.attendance.student.lname }}
+                        </td>
+                        <td class="event-cell">
+                            {{ log.attendance.event.name }}
+                        </td>
+                        <td class="hours-cell old-hours">{{ "%.1f"|format(log.old_hours) }}</td>
+                        <td class="hours-cell new-hours">{{ "%.1f"|format(log.new_hours) }}</td>
+                        <td class="change-cell">
+                            {% set change = log.new_hours - log.old_hours %}
+                            <span class="change-amount {% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
+                                {{ "%+.1f"|format(change) }}
+                            </span>
+                        </td>
+                        <td class="user-cell">
+                            {{ log.user.username if log.user else "Unknown" }}
+                        </td>
+                        <td class="reason-cell">
+                            {{ log.reason or 'No reason provided' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not logs %}
+        <div class="empty-state">
+            <span class="empty-icon">📝</span>
+            <p>No attendance changes have been made yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="{{ url_for('attendance_dashboard') }}" class="btn-primary">Back to Dashboard</a>
+</div>
+
+<script src="{{ url_for('static', filename='js/attendance_history.js') }}"></script>
+
+{% endblock %}

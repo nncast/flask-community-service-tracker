@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Event Attendance{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/event_attendance.css') }}">
+
+<div class="dashboard-header">
+    <h1>{{ event.name }}</h1>
+    <p class="subtitle">{{ event.date.strftime('%B %d, %Y') }} • {{ event.required_hours }} hours required</p>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h3>Student Attendance</h3>
+        <span class="student-count">{{ attendances|length }} students</span>
+    </div>
+    
+    <div class="card-content">
+        <form method="post" action="{{ url_for('save_event_attendance', event_id=event.id) }}">
+            <div class="table-container">
+                <table class="event-attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Year Level</th>
+                            <th class="text-center">Signed In</th>
+                            <th class="text-center">Signed Out</th>
+                            <th class="text-center">Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for att in attendances %}
+                        <tr>
+                            <td class="student-id">{{ att.student.student_id }}</td>
+                            <td class="student-name">{{ att.student.fname }} {{ att.student.mname }} {{ att.student.lname }}</td>
+                            <td class="year-level">{{ att.student.year_level.level }}-{{ att.student.year_level.section }}</td>
+                            <td class="text-center">
+                                <label class="checkbox-wrapper">
+                                    <input type="checkbox" name="timed_in_{{ att.id }}" value="1" {% if att.timed_in %}checked{% endif %}>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </td>
+                            <td class="text-center">
+                                <label class="checkbox-wrapper">
+                                    <input type="checkbox" name="timed_out_{{ att.id }}" value="1" {% if att.timed_out %}checked{% endif %}>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </td>
+                            <td class="text-center hours-cell">
+                                {% if att.timed_in and att.timed_out %}
+                                    <span class="hours-badge completed">0</span>
+                                {% elif att.timed_in or att.timed_out %}
+                                    <span class="hours-badge partial">{{ "%.1f"|format(event.required_hours / 2) }}</span>
+                                {% else %}
+                                    <span class="hours-badge pending">{{ event.required_hours }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <span class="btn-icon">💾</span>
+                    Save Attendance
+                </button>
+                <a href="{{ url_for('attendance_dashboard') }}" class="btn-secondary">Back to Dashboard</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flashed-messages">
+        {% for message in messages %}
+            <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<script src="{{ url_for('static', filename='js/event_attendance.js') }}"></script>
+
+{% endblock %}

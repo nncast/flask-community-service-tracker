@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LaSalette Academy - Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            <div class="logo-text">
+                <div class="logo-main">CIT Community Service Tracker</div>
+                <div class="logo-subtitle">University of La Salette</div>
+                <div class="logo-department">College of Information Technology</div>
+            </div>
+        </div>
+    </div>
+    
+    <nav>
+        {% if session.get('role') in ['admin', 'officer'] %}
+            <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+        {% endif %}
+
+        {% if session.get('role') in ['admin', 'officer'] %}
+            <a href="{{ url_for('events') }}" class="{% if request.endpoint == 'events' %}active{% endif %}">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Events</span>
+            </a>
+
+            <div class="dropdown">
+                <a href="javascript:void(0)" class="{% if request.endpoint in ['attendance_dashboard', 'attendance_history'] %}active{% endif %}">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">Attendance</span>
+                </a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('attendance_dashboard') }}">
+                        <span class="nav-text">- Attendance Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('attendance_history') }}">
+                        <span class="nav-text">- Attendance History</span>
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if session.get('role') == 'admin' %}
+            <div class="dropdown">
+                <a href="javascript:void(0)" class="{% if request.endpoint in ['students', 'year_levels', 'academic_years'] %}active{% endif %}">
+                    <span class="nav-icon">🎓</span>
+                    <span class="nav-text">Students</span>
+                </a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('students') }}">
+                        <span class="nav-text">- Students</span>
+                    </a>
+                    <a href="{{ url_for('year_levels') }}">
+                        <span class="nav-text">- Year Levels</span>
+                    </a>
+                    <a href="{{ url_for('academic_years') }}">
+                        <span class="nav-text">- Academic Years</span>
+                    </a>
+                </div>
+            </div>
+
+            <a href="{{ url_for('users') }}" class="{% if request.endpoint == 'users' %}active{% endif %}">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Users</span>
+            </a>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-text">Logout</span>
+        </a>
+    </nav>
+    
+    <div class="user-info">
+        <div class="user-avatar">👤</div>
+        <div class="user-details">
+            <div class="user-name">{{ session.get('username') }}</div>
+            <div class="user-role">{{ session.get('role') }} Role</div>
+        </div>
+    </div>
+</aside>
+
+
+        <!-- Main content -->
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // Dropdown toggle
+        document.querySelectorAll('.dropdown > a').forEach(item => {
+            item.addEventListener('click', function() {
+                const parent = this.parentElement;
+                const isOpen = parent.classList.contains('open');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.dropdown.open').forEach(dropdown => {
+                    if (dropdown !== parent) {
+                        dropdown.classList.remove('open');
+                    }
+                });
+                
+                // Toggle current dropdown
+                parent.classList.toggle('open');
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.dropdown > a')) {
+                document.querySelectorAll('.dropdown.open').forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+        });
+
+        // Auto-hide flash messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => message.remove(), 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

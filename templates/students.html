@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% block title %}Students Management{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/students.css') }}">
+
+<div class="dashboard-header">
+    <h1>Student Management</h1>
+    <p class="subtitle">Manage student records and information</p>
+</div>
+
+<div class="content-card">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Add New Student</h3>
+        <button type="button" id="toggleAddStudent" class="btn-secondary">Add Student</button>
+    </div>
+    <div class="card-content" id="addStudentForm" style="display:none;">
+        <form method="post" action="{{ url_for('add_student') }}" class="student-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Academic Year</label>
+                    <select name="academic_year" id="academic_year_select" required onchange="filterYearLevels()">
+    <option value="">Select Academic Year</option>
+    {% set newest_id = academic_years|map(attribute='id')|max %}
+    {% for ay in academic_years %}
+        <option value="{{ ay.id }}" 
+                {% if ay.id == newest_id %}selected{% endif %}>
+            {{ ay.year }}
+        </option>
+    {% endfor %}
+</select>
+
+                </div>
+                
+                <div class="form-group">
+                    <label>Student ID</label>
+                    <input type="text" name="student_id" required placeholder="Enter student ID">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="fname" required placeholder="First name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Middle Name</label>
+                    <input type="text" name="mname" placeholder="Middle name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="lname" required placeholder="Last name">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Year Level & Section</label>
+                    <select name="year_level" id="year_level_select" required>
+                        <option value="">Select Year Level</option>
+                        {% for yl in year_levels %}
+                        <option value="{{ yl.id }}" data-ay="{{ yl.academic_year_id }}">{{ yl.level }} - {{ yl.section }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="graduate">Graduate</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                <span class="btn-icon">➕</span>
+                Add Student
+            </button>
+        </form>
+    </div>
+</div>
+<div class="content-card">
+    <div class="card-header">
+        <h3>Existing Students</h3>
+        <span class="student-count">{{ students|length }} student(s)</span>
+    </div>
+
+    <div class="card-content">
+
+        <!-- Search & Filter moved here -->
+        <form method="get" action="{{ url_for('students') }}" class="filter-form" style="margin-bottom: 1rem;">
+            <div class="filter-row">
+                <div class="form-group">
+                    <label>Search</label>
+                    <input type="text" name="search" value="{{ search }}" placeholder="Search students...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Academic Year</label>
+                    <select name="academic_year" id="filter_ay" onchange="filterYearLevelsTable()">
+                        <option value="">All Academic Years</option>
+                        {% for ay in academic_years %}
+                        <option value="{{ ay.id }}" {% if ay_filter|int==ay.id %}selected{% endif %}>{{ ay.year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Year Level</label>
+                    <select name="year_level" id="filter_yl">
+                        <option value="">All Year Levels</option>
+                        {% for yl in year_levels %}
+                        <option value="{{ yl.id }}" data-ay="{{ yl.academic_year_id }}" {% if yl_filter|int==yl.id %}selected{% endif %}>
+                            {{ yl.level }} - {{ yl.section }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="">All Status</option>
+                        <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="graduate" {% if status_filter=='graduate' %}selected{% endif %}>Graduate</option>
+                    </select>
+                </div>
+            </div>
+            
+        </form>
+
+        <!-- Students table -->
+        <div class="table-container">
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student ID</th>
+                        <th>First Name</th>
+                        <th>Middle Name</th>
+                        <th>Last Name</th>
+                        <th>Academic Year</th>
+                        <th>Year Level</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <form method="post" action="{{ url_for('edit_student', student_id=student.id) }}">
+                            <td class="student-id">{{ student.id }}</td>
+                            <td>
+                                <input type="text" name="student_id" value="{{ student.student_id }}" class="form-input">
+                            </td>
+                            <td>
+                                <input type="text" name="fname" value="{{ student.fname }}" class="form-input">
+                            </td>
+                            <td>
+                                <input type="text" name="mname" value="{{ student.mname }}" class="form-input">
+                            </td>
+                            <td>
+                                <input type="text" name="lname" value="{{ student.lname }}" class="form-input">
+                            </td>
+                            <td>
+                                <select name="academic_year" onchange="filterRowYearLevels(this)" class="form-select">
+                                    {% for ay in academic_years %}
+                                    <option value="{{ ay.id }}" {% if student.year_level and student.year_level.academic_year_id == ay.id %}selected{% endif %}>
+                                        {{ ay.year }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <select name="year_level" class="form-select">
+                                    {% for yl in year_levels %}
+                                    <option value="{{ yl.id }}" data-ay="{{ yl.academic_year_id }}" {% if student.year_level_id == yl.id %}selected{% endif %}>
+                                        {{ yl.level }} - {{ yl.section }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <select name="status" class="form-select">
+                                    <option value="active" {% if student.status=='active' %}selected{% endif %}>Active</option>
+                                    <option value="inactive" {% if student.status=='inactive' %}selected{% endif %}>Inactive</option>
+                                    <option value="graduate" {% if student.status=='graduate' %}selected{% endif %}>Graduate</option>
+                                </select>
+                            </td>
+                            <td class="actions">
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn-update" title="Update">
+                                        <span class="btn-icon">💾</span>
+                                    </button>
+                                    <a href="{{ url_for('delete_student', student_id=student.id) }}" class="btn-delete" title="Delete" onclick="return confirm('Delete this student?')">
+                                        <span class="btn-icon">🗑️</span>
+                                    </a>
+                                    <a href="{{ url_for('promote_student', student_id=student.id) }}" class="btn-promote" title="Promote" onclick="return confirm('Promote this student to next year?')">
+                                        <span class="btn-icon">⬆️</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+        {% if not students %}
+        <div class="empty-state">
+            <span class="empty-icon">👥</span>
+            <p>No students found.</p>
+            <p class="subtext">Add your first student using the form above.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flashed-messages">
+        {% for message in messages %}
+            <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const filterForm = document.querySelector('.filter-form');
+    const searchInput = filterForm.querySelector('input[name="search"]');
+    const aySelect = filterForm.querySelector('select[name="academic_year"]');
+    const ylSelect = filterForm.querySelector('select[name="year_level"]');
+    const statusSelect = filterForm.querySelector('select[name="status"]');
+
+    // Auto-submit on input or change
+    searchInput.addEventListener("input", function() {
+        filterForm.submit();
+    });
+    aySelect.addEventListener("change", function() {
+        filterForm.submit();
+    });
+    ylSelect.addEventListener("change", function() {
+        filterForm.submit();
+    });
+    statusSelect.addEventListener("change", function() {
+        filterForm.submit();
+    });
+});
+// JavaScript functions remain the same as in your original code
+function filterYearLevels() {
+    const aySelect = document.getElementById('academic_year_select');
+    const ylSelect = document.getElementById('year_level_select');
+    const selectedAY = aySelect.value;
+
+    for (let option of ylSelect.options) {
+        if (option.value === "") continue;
+        if (option.dataset.ay === selectedAY) {
+            option.style.display = "block";
+        } else {
+            option.style.display = "none";
+        }
+    }
+
+    if (ylSelect.value !== "") {
+        const selectedOption = ylSelect.options[ylSelect.selectedIndex];
+        if (selectedOption.dataset.ay !== selectedAY) {
+            ylSelect.value = "";
+        }
+    }
+}
+
+function filterYearLevelsTable() {
+    const aySelect = document.getElementById('filter_ay');
+    const ylSelect = document.getElementById('filter_yl');
+    const selectedAY = aySelect.value;
+
+    for (let option of ylSelect.options) {
+        if (option.value === "") continue;
+        if (selectedAY === "" || option.dataset.ay === selectedAY) {
+            option.style.display = "block";
+        } else {
+            option.style.display = "none";
+        }
+    }
+
+    if (ylSelect.value !== "" && selectedAY !== "") {
+        const selectedOption = ylSelect.options[ylSelect.selectedIndex];
+        if (selectedOption.dataset.ay !== selectedAY) {
+            ylSelect.value = "";
+        }
+    }
+}
+
+function filterRowYearLevels(aySelect) {
+    const row = aySelect.closest("tr");
+    const ylSelect = row.querySelector('select[name="year_level"]');
+    const selectedAY = aySelect.value;
+
+    for (let option of ylSelect.options) {
+        if (option.value === "") continue;
+        if (option.dataset.ay === selectedAY) {
+            option.style.display = "block";
+        } else {
+            option.style.display = "none";
+        }
+    }
+
+    if (ylSelect.value !== "") {
+        const selectedOption = ylSelect.options[ylSelect.selectedIndex];
+        if (selectedOption.dataset.ay !== selectedAY) {
+            ylSelect.value = "";
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    filterYearLevels();
+    filterYearLevelsTable();
+    
+    const rowAYSelects = document.querySelectorAll('select[name="academic_year"]');
+    rowAYSelects.forEach(select => {
+        if (!select.id.includes('academic_year_select') && !select.id.includes('filter_ay')) {
+            filterRowYearLevels(select);
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const toggleButton = document.getElementById("toggleAddStudent");
+    const addFormDiv = document.getElementById("addStudentForm");
+
+    toggleButton.addEventListener("click", function() {
+        addFormDiv.style.display = (addFormDiv.style.display === "none" || addFormDiv.style.display === "") ? "block" : "none";
+    });
+});
+</script>
+
+{% endblock %}

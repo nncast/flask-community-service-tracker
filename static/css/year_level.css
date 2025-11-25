@@ -1,0 +1,349 @@
+/* Year Level Management Styles */
+
+.year-level-count {
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+/* Form Styling */
+.year-level-form,
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row,
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9em;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.95em;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group select:focus {
+    border-color: #7c3aed;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* Filter Actions */
+.filter-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Buttons */
+.btn-primary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    background: #7c3aed;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+}
+
+.btn-primary:hover {
+    background: #6d28d9;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    padding: 12px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    color: #374151;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    border-color: #7c3aed;
+    color: #7c3aed;
+    transform: translateY(-1px);
+}
+
+.btn-icon {
+    font-size: 1.1em;
+}
+
+/* Table Container */
+.table-container {
+    border-radius: 8px;
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+}
+
+/* Year Levels Table */
+.year-levels-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.year-levels-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    padding: 16px 12px;
+    font-size: 0.9em;
+    text-align: left;
+}
+
+.year-levels-table td {
+    border: 1px solid #e2e8f0;
+    padding: 16px 12px;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.year-levels-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Table Cell Styles */
+.year-level-id {
+    font-weight: 600;
+    color: #6b7280;
+    font-family: monospace;
+}
+
+.form-input {
+    padding: 8px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9em;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #7c3aed;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.form-select {
+    padding: 8px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9em;
+    width: 100%;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.form-select:focus {
+    border-color: #7c3aed;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+/* Level Badge Styling */
+.year-levels-table input[type="number"] {
+    text-align: center;
+    font-weight: 600;
+}
+
+.year-levels-table input[type="number"][value="1"] {
+    color: #dc2626;
+}
+
+.year-levels-table input[type="number"][value="2"] {
+    color: #ea580c;
+}
+
+.year-levels-table input[type="number"][value="3"] {
+    color: #ca8a04;
+}
+
+.year-levels-table input[type="number"][value="4"] {
+    color: #16a34a;
+}
+
+/* Action Buttons */
+.actions {
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-update,
+.btn-delete {
+    padding: 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-update {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.btn-update:hover {
+    background: #bfdbfe;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.empty-icon {
+    font-size: 3em;
+    margin-bottom: 16px;
+    display: block;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin-bottom: 8px;
+}
+
+.subtext {
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+/* Flashed Messages */
+.flashed-messages {
+    margin: 20px 0;
+}
+
+.flash-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .form-row,
+    .filter-row {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .year-level-form,
+    .filter-form {
+        gap: 16px;
+    }
+    
+    .form-row,
+    .filter-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        justify-content: center;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-update,
+    .btn-delete {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .year-level-count {
+        align-self: flex-start;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select {
+        padding: 10px 12px;
+    }
+}

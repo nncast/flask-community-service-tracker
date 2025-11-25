@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-background">
+    <div class="dashboard-overlay">
+        <div class="dashboard-header">
+            <h1>Welcome to the Dashboard</h1>
+            <p class="subtitle">Overview of your academic management system</p>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-content">
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon">
+                <span class="icon">👥</span>
+            </div>
+            <div class="metric-content">
+                <h3>Total Students</h3>
+                <p class="metric-value">{{ total_students }}</p>
+                <span class="metric-label">Active enrollments</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <span class="icon">📅</span>
+            </div>
+            <div class="metric-content">
+                <h3>Total Events</h3>
+                <p class="metric-value">{{ total_events }}</p>
+                <span class="metric-label">All activities</span>
+            </div>
+        </div>
+
+        <div class="metric-card highlight">
+            <div class="metric-icon">
+                <span class="icon">⏰</span>
+            </div>
+            <div class="metric-content">
+                <h3>Upcoming Events</h3>
+                <p class="metric-value">{{ upcoming_events|length }}</p>
+                <span class="metric-label">Scheduled</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <span class="icon">🔄</span>
+            </div>
+            <div class="metric-content">
+                <h3>Recent Changes</h3>
+                <p class="metric-value">{{ recent_changes|length }}</p>
+                <span class="metric-label">This week</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="content-card">
+            <div class="card-header">
+                <h3>Upcoming Events</h3>
+                <a href="{{ url_for('events') }}" class="view-all">View All</a>
+            </div>
+            <div class="card-content">
+                {% if upcoming_events %}
+                <div class="event-list">
+                    {% for event in upcoming_events %}
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="date-day">{{ event.date.strftime('%d') }}</span>
+                            <span class="date-month">{{ event.date.strftime('%b') }}</span>
+                        </div>
+                        <div class="event-details">
+                            <h4>{{ event.name }}</h4>
+                            <p>{{ event.date.strftime('%A, %B %d, %Y') }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">📅</span>
+                    <p>No upcoming events</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <h3>Recent Attendance Changes</h3>
+                <a href="{{ url_for('attendance_history') }}" class="view-all">View History</a>
+            </div>
+            <div class="card-content">
+                {% if recent_changes %}
+                <div class="changes-list">
+                    {% for change in recent_changes %}
+                    <div class="change-item">
+                        <div class="change-header">
+                            <strong>{{ change.attendance.student.fname }} {{ change.attendance.student.lname }}</strong>
+                            <span class="change-time">{{ change.changed_at.strftime('%b %d, %H:%M') }}</span>
+                        </div>
+                        <div class="change-details">
+                            <span class="event-name">{{ change.attendance.event.name }}</span>
+                            <div class="hours-change">
+                                <span class="old-hours">{{ change.old_hours }}</span>
+                                <span class="arrow">→</span>
+                                <span class="new-hours">{{ change.new_hours }}</span>
+                            </div>
+                        </div>
+                        <div class="change-meta">
+                            by {{ username }}  <!-- show current logged-in user -->
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">📊</span>
+                    <p>No recent changes</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
