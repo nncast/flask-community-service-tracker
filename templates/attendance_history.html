@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Attendance Change History{% endblock %}
+
+{% block content %}
+<h2>Attendance Change History</h2>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Date</th>
+        <th>Student</th>
+        <th>Event</th>
+        <th>Old Hours</th>
+        <th>New Hours</th>
+        <th>Changed By</th>
+        <th>Reason</th>
+    </tr>
+
+    {% for log in logs %}
+    <tr>
+        <td>{{ log.changed_at.strftime("%Y-%m-%d %H:%M") }}</td>
+        <td>{{ log.attendance.student.fname }} {{ log.attendance.student.lname }}</td>
+        <td>{{ log.attendance.event.name }}</td>
+        <td>{{ log.old_hours }}</td>
+        <td>{{ log.new_hours }}</td>
+        <td>{{ log.changed_by }}</td>
+        <td>{{ log.reason or '' }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+<a href="{{ url_for('attendance_dashboard') }}">Back to Dashboard</a>
+{% endblock %}

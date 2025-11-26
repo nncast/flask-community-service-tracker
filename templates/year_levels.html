@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Year Levels Management{% endblock %}
+{% block content %}
+
+<h2>Add Year Level</h2>
+<form method="post" action="{{ url_for('add_year_level') }}">
+    Academic Year:
+    <select name="academic_year" required>
+        {% for ay in academic_years %}
+        <option value="{{ ay.id }}">{{ ay.year }}</option>
+        {% endfor %}
+    </select>
+    Level: <input type="number" name="level" min="1" max="4" required>
+    Section: <input type="text" name="section" required>
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+<h2>Search & Filter</h2>
+<form method="get" action="{{ url_for('year_levels') }}">
+    Search: <input type="text" name="search" value="{{ search }}">
+    Academic Year:
+    <select name="academic_year">
+        <option value="">All</option>
+        {% for ay in academic_years %}
+        <option value="{{ ay.id }}" {% if ay_filter|int==ay.id %}selected{% endif %}>{{ ay.year }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Apply</button>
+    <a href="{{ url_for('year_levels') }}">Reset</a>
+</form>
+
+<hr>
+
+<h2>Existing Year Levels</h2>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>ID</th>
+        <th>Academic Year</th>
+        <th>Level</th>
+        <th>Section</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for yl in year_levels %}
+    <tr>
+        <form method="post" action="{{ url_for('edit_year_level', yl_id=yl.id) }}">
+            <td>{{ yl.id }}</td>
+            <td>
+                <select name="academic_year">
+                    {% for ay in academic_years %}
+                    <option value="{{ ay.id }}" {% if yl.academic_year_id==ay.id %}selected{% endif %}>
+                        {{ ay.year }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td><input type="number" name="level" value="{{ yl.level }}" min="1" max="4"></td>
+            <td><input type="text" name="section" value="{{ yl.section }}"></td>
+            <td>
+                <button type="submit">Update</button>
+                <a href="{{ url_for('delete_year_level', yl_id=yl.id) }}" onclick="return confirm('Delete this year level?')">Delete</a>
+            </td>
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul style="color:red;">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Attendance Dashboard{% endblock %}
+
+{% block content %}
+<h2>Attendance Dashboard</h2>
+
+<form method="post" action="{{ url_for('save_all_attendance') }}">
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th rowspan="2">Student ID</th>
+            <th rowspan="2">Name</th>
+            <th rowspan="2">Year Level</th>
+            <th rowspan="2">Total CS Hours</th>
+
+            {% for event in events %}
+                <th colspan="3">{{ event.name }}<br>{{ event.date.strftime('%Y-%m-%d') }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for event in events %}
+                <th>Time In</th>
+                <th>Time Out</th>
+                <th>Hours</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+       <tr>
+        <td>{{ student.student_id }}</td>
+        <td>{{ student.fname }} {{ student.mname }} {{ student.lname }}</td>
+        <td>{{ student.year_level.level }}-{{ student.year_level.section }}</td>
+        <td class="total-hours">
+            {{ student.event_attendances | sum(attribute='accumulated_hours') }}
+        </td>
+
+
+        {% for event in events %}
+            {% set attendance = student.event_attendances | selectattr("event_id", "equalto", event.id) | first %}
+            <td>
+                <input type="checkbox" name="timein_{{ attendance.id }}" 
+                {% if attendance and attendance.timed_in %}checked{% endif %}>
+
+
+            </td>
+            <td>
+                <input type="checkbox" name="timeout_{{ attendance.id }}" 
+                {% if attendance and attendance.timed_out %}checked{% endif %}>
+            </td>
+            <td>
+                <input type="number" step="0.1" 
+                    name="hours_{{ attendance.id if attendance else 0 }}" 
+                    value="{{ attendance.accumulated_hours if attendance else 0 }}"
+                    data-required="{{ attendance.event.required_hours if attendance else 0 }}"
+                    style="width:60px;">
+            </td>
+        {% endfor %}
+    </tr>
+
+        {% endfor %}
+    </tbody>
+</table>
+
+<br>
+<button type="submit">Save All Attendance</button>
+<a href="{{ url_for('attendance_history') }}">View Hours History</a>
+
+</form>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul style="color:red;">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    function calculateHours(ti, to, required) {
+        if (!ti && !to) return required;
+        if (ti && to) return 0;
+        return required / 2;
+    }
+
+    function updateTotal(row) {
+        let total = 0;
+        row.querySelectorAll("input[type='number']").forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        row.querySelector(".total-hours").textContent = total.toFixed(2);
+    }
+
+    document.querySelectorAll("tbody tr").forEach(row => {
+
+        const hoursInputs = row.querySelectorAll("input[type='number']");
+        const checkboxInputs = row.querySelectorAll("input[type='checkbox']");
+
+        // Listen for manual edits on numeric inputs
+        hoursInputs.forEach(input => {
+            input.addEventListener("input", () => {
+                updateTotal(row);
+            });
+        });
+
+        // Listen for checkbox changes
+        checkboxInputs.forEach(box => {
+            box.addEventListener("change", () => {
+                const id = box.name.split("_")[1];
+                const timeInBox = row.querySelector(`input[name="timein_${id}"]`);
+                const timeOutBox = row.querySelector(`input[name="timeout_${id}"]`);
+                const hoursInput = row.querySelector(`input[name="hours_${id}"]`);
+                if (!hoursInput || !timeInBox || !timeOutBox) return;
+
+                const required = parseFloat(hoursInput.getAttribute("data-required")) || 0;
+                const ti = timeInBox.checked;
+                const to = timeOutBox.checked;
+
+                // Real-time calculation
+                hoursInput.value = calculateHours(ti, to, required);
+
+                updateTotal(row);
+            });
+        });
+
+        // Initialize totals on page load
+        updateTotal(row);
+    });
+});
+</script>
+
+
+
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}Students Management{% endblock %}
+{% block content %}
+
+<h2>Add Student</h2>
+<form method="post" action="{{ url_for('add_student') }}">
+    Academic Year:
+    <select name="academic_year" id="academic_year_select" required onchange="filterYearLevels()">
+        <option value="">Select AY</option>
+        {% for ay in academic_years %}
+        <option value="{{ ay.id }}">{{ ay.year }}</option>
+        {% endfor %}
+    </select>
+    Student ID: <input type="text" name="student_id" required>
+    First Name: <input type="text" name="fname" required>
+    Middle Name: <input type="text" name="mname">
+    Last Name: <input type="text" name="lname" required>
+    Year Level & Section:
+    <select name="year_level" id="year_level_select" required>
+        <option value="">Select Year Level</option>
+        {% for yl in year_levels %}
+        <option value="{{ yl.id }}" data-ay="{{ yl.academic_year_id }}">{{ yl.level }} - {{ yl.section }}</option>
+        {% endfor %}
+    </select>
+    Status:
+    <select name="status">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="graduate">Graduate</option>
+    </select>
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+<h2>Search & Filter</h2>
+<form method="get" action="{{ url_for('students') }}">
+    Search: <input type="text" name="search" value="{{ search }}">
+    Academic Year:
+    <select name="academic_year" id="filter_ay" onchange="filterYearLevelsTable()">
+        <option value="">All</option>
+        {% for ay in academic_years %}
+        <option value="{{ ay.id }}" {% if ay_filter|int==ay.id %}selected{% endif %}>{{ ay.year }}</option>
+        {% endfor %}
+    </select>
+    Year Level:
+    <select name="year_level" id="filter_yl">
+        <option value="">All</option>
+        {% for yl in year_levels %}
+        <option value="{{ yl.id }}" data-ay="{{ yl.academic_year_id }}" {% if yl_filter|int==yl.id %}selected{% endif %}>
+            {{ yl.level }} - {{ yl.section }}
+        </option>
+        {% endfor %}
+    </select>
+    Status:
+    <select name="status">
+        <option value="">All</option>
+        <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>Inactive</option>
+        <option value="graduate" {% if status_filter=='graduate' %}selected{% endif %}>Graduate</option>
+    </select>
+    <button type="submit">Apply</button>
+    <a href="{{ url_for('students') }}">Reset</a>
+</form>
+
+<hr>
+
+<h2>Existing Students</h2>
+<table border="1" cellpadding="5">
+<tr>
+    <th>ID</th>
+    <th>Student ID</th>
+    <th>First Name</th>
+    <th>Middle Name</th>
+    <th>Last Name</th>
+    <th>Academic Year</th>
+    <th>Year Level & Section</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+
+{% for student in students %}
+<tr>
+    <form method="post" action="{{ url_for('edit_student', student_id=student.id) }}">
+        <td>{{ student.id }}</td>
+        <td><input type="text" name="student_id" value="{{ student.student_id }}"></td>
+        <td><input type="text" name="fname" value="{{ student.fname }}"></td>
+        <td><input type="text" name="mname" value="{{ student.mname }}"></td>
+        <td><input type="text" name="lname" value="{{ student.lname }}"></td>
+        <td>
+            <select name="academic_year" onchange="filterRowYearLevels(this)">
+                {% for ay in academic_years %}
+                    <option value="{{ ay.id }}"
+                        {% if student.year_level and student.year_level.academic_year_id == ay.id %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ ay.year }}
+                    </option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <select name="year_level">
+                {% for yl in year_levels %}
+                    <option value="{{ yl.id }}"
+                        data-ay="{{ yl.academic_year_id }}"
+                        {% if student.year_level_id == yl.id %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ yl.level }} - {{ yl.section }}
+                    </option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <select name="status">
+                <option value="active" {% if student.status=='active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if student.status=='inactive' %}selected{% endif %}>Inactive</option>
+                <option value="graduate" {% if student.status=='graduate' %}selected{% endif %}>Graduate</option>
+            </select>
+        </td>
+        <td>
+            <button type="submit">Update</button>
+            <a href="{{ url_for('delete_student', student_id=student.id) }}" onclick="return confirm('Delete this student?')">Delete</a>
+            <a href="{{ url_for('promote_student', student_id=student.id) }}" onclick="return confirm('Promote this student to next year?')">Promote</a>
+        </td>
+    </form>
+</tr>
+{% endfor %}
+</table>
+
+<script>
+function filterYearLevels() {
+    const aySelect = document.getElementById('academic_year_select');
+    const ylSelect = document.getElementById('year_level_select');
+    const selectedAY = aySelect.value;
+
+    // Filter year level options based on selected academic year
+    for (let option of ylSelect.options) {
+        if (option.value === "") {
+            continue; // Keep the "Select Year Level" option
+        }
+        if (option.dataset.ay === selectedAY) {
+            option.style.display = "block";
+        } else {
+            option.style.display = "none";
+        }
+    }
+
+    // Reset selection if current selection doesn't match the academic year
+    if (ylSelect.value !== "") {
+        const selectedOption = ylSelect.options[ylSelect.selectedIndex];
+        if (selectedOption.dataset.ay !== selectedAY) {
+            ylSelect.value = "";
+        }
+    }
+}
+
+function filterYearLevelsTable() {
+    const aySelect = document.getElementById('filter_ay');
+    const ylSelect = document.getElementById('filter_yl');
+    const selectedAY = aySelect.value;
+
+    // Filter year level options based on selected academic year
+    for (let option of ylSelect.options) {
+        if (option.value === "") {
+            continue; // Keep the "All" option
+        }
+        if (selectedAY === "" || option.dataset.ay === selectedAY) {
+            option.style.display = "block";
+        } else {
+            option.style.display = "none";
+        }
+    }
+
+    // Reset selection if current selection doesn't match the academic year
+    if (ylSelect.value !== "" && selectedAY !== "") {
+        const selectedOption = ylSelect.options[ylSelect.selectedIndex];
+        if (selectedOption.dataset.ay !== selectedAY) {
+            ylSelect.value = "";
+        }
+    }
+}
+
+function filterRowYearLevels(aySelect) {
+    const row = aySelect.closest("tr");
+    const ylSelect = row.querySelector('select[name="year_level"]');
+    const selectedAY = aySelect.value;
+
+    // Filter year level options based on selected academic year
+    for (let option of ylSelect.options) {
+        if (option.value === "") {
+            continue;
+        }
+        if (option.dataset.ay === selectedAY) {
+            option.style.display = "block";
+        } else {
+            option.style.display = "none";
+        }
+    }
+
+    // Reset selection if current selection doesn't match the academic year
+    if (ylSelect.value !== "") {
+        const selectedOption = ylSelect.options[ylSelect.selectedIndex];
+        if (selectedOption.dataset.ay !== selectedAY) {
+            ylSelect.value = "";
+        }
+    }
+}
+
+// Initialize filters on page load
+document.addEventListener('DOMContentLoaded', function() {
+    filterYearLevels();
+    filterYearLevelsTable();
+    
+    // Initialize row filters for existing students
+    const rowAYSelects = document.querySelectorAll('select[name="academic_year"]');
+    rowAYSelects.forEach(select => {
+        if (!select.id.includes('academic_year_select') && !select.id.includes('filter_ay')) {
+            filterRowYearLevels(select);
+        }
+    });
+});
+</script>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul style="color:red;">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+{% endblock %}

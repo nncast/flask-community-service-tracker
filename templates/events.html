@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<h2>Events</h2>
+
+<button type="button" onclick="toggleForm()" style="margin-bottom:10px;">Create New Event</button>
+
+<div id="create-event-form" style="display:none; margin-bottom:20px;">
+    <form method="post" action="{{ url_for('add_event') }}">
+        <label>Event Name:</label>
+        <input type="text" name="name" required><br>
+
+        <label>Date:</label>
+        <input type="date" name="date" required><br>
+
+        <label>Required Hours:</label>
+        <input type="number" step="0.1" name="required_hours" value="2.0" required><br>
+
+        <label>Target Year Level:</label><br>
+        <label><input type="checkbox" name="year_levels" value="all" onclick="toggleYearSelection(this)"> All</label><br>
+
+        {% for yl in year_levels %}
+        <label>
+            <input type="checkbox" name="year_levels" value="{{ yl.id }}">
+            {{ yl.level }}{% if yl.level == 1 %}st{% elif yl.level == 2 %}nd{% elif yl.level == 3 %}rd{% else %}th{% endif %} Year - {{ yl.section }}
+        </label><br>
+        {% endfor %}
+
+        <button type="submit">Create Event</button>
+    </form>
+</div>
+
+<hr>
+<h2>Existing Events</h2>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Target Years</th>
+        <th>Required Hours</th>
+        <th>Actions</th>
+    </tr>
+    {% for event in events %}
+    <tr>
+        <td>{{ event.id }}</td>
+        <td>{{ event.name }}</td>
+        <td>{{ event.date }}</td>
+        <td>{{ event.target_years }}</td>
+        <td>{{ event.required_hours }}</td>
+        <td>
+            <a href="{{ url_for('edit_event', event_id=event.id) }}">Edit</a> |
+            <a href="{{ url_for('delete_event', event_id=event.id) }}">Delete</a> |
+            <a href="{{ url_for('event_attendance', event_id=event.id) }}">View Attendance</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+function toggleForm() {
+    const formDiv = document.getElementById('create-event-form');
+    formDiv.style.display = formDiv.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleYearSelection(allCheckbox) {
+    const yearCheckboxes = document.querySelectorAll('input[name="year_levels"]:not([value="all"])');
+    yearCheckboxes.forEach(cb => cb.checked = allCheckbox.checked);
+}
+
+document.querySelectorAll('input[name="year_levels"]:not([value="all"])').forEach(cb => {
+    cb.addEventListener('change', () => {
+        const allCheckbox = document.querySelector('input[name="year_levels"][value="all"]');
+        const allChecked = Array.from(document.querySelectorAll('input[name="year_levels"]:not([value="all"])'))
+                                .every(cb => cb.checked);
+        allCheckbox.checked = allChecked;
+    });
+});
+</script>
+
+{% endblock %}

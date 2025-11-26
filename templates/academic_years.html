@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Academic Years{% endblock %}
+{% block content %}
+
+<h2>Add Academic Year</h2>
+<form method="post" action="{{ url_for('add_academic_year') }}">
+    Year: <input type="text" name="year" required>
+    Status:
+    <select name="status">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+    </select><br><br>
+    1st Semester: Start <input type="date" name="start1" required>
+    End <input type="date" name="end1" required><br>
+    2nd Semester: Start <input type="date" name="start2" required>
+    End <input type="date" name="end2" required><br><br>
+    <button type="submit">Add Academic Year</button>
+</form>
+
+<hr>
+
+<h2>Existing Academic Years</h2>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>ID</th>
+        <th>Year</th>
+        <th>Status</th>
+        <th>1st Semester Start</th>
+        <th>1st Semester End</th>
+        <th>2nd Semester Start</th>
+        <th>2nd Semester End</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for ay in years %}
+    <tr>
+        <form method="post" action="{{ url_for('edit_academic_year', ay_id=ay.id) }}">
+            <td>{{ ay.id }}</td>
+            <td><input type="text" name="year" value="{{ ay.year }}"></td>
+            <td>
+                <select name="status">
+                    <option value="active" {% if ay.status=='active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if ay.status=='inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </td>
+            <td><input type="date" name="start1" value="{{ ay.semesters[0].start_date if ay.semesters|length >=1 and ay.semesters[0] else '' }}"></td>
+            <td><input type="date" name="end1" value="{{ ay.semesters[0].end_date if ay.semesters|length >=1 and ay.semesters[0] else '' }}"></td>
+            <td><input type="date" name="start2" value="{{ ay.semesters[1].start_date if ay.semesters|length >=2 and ay.semesters[1] else '' }}"></td>
+            <td><input type="date" name="end2" value="{{ ay.semesters[1].end_date if ay.semesters|length >=2 and ay.semesters[1] else '' }}"></td>
+            <td>
+                <button type="submit">Update</button>
+                <a href="{{ url_for('delete_academic_year', ay_id=ay.id) }}" onclick="return confirm('Delete this academic year?')">Delete</a>
+            </td>
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul style="color:red;">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+{% endblock %}

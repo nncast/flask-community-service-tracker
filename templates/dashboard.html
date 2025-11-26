@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Welcome to the Dashboard</h1>
+
+<div style="display:flex; gap:20px; flex-wrap: wrap; margin-top:20px;">
+    <!-- Total Students -->
+    <div style="flex:1; min-width:200px; background:#f1f1f1; padding:20px; border-radius:8px; text-align:center;">
+        <h2>Total Students</h2>
+        <p style="font-size:2em; font-weight:bold;">{{ total_students }}</p>
+    </div>
+
+    <!-- Total Events -->
+    <div style="flex:1; min-width:200px; background:#f1f1f1; padding:20px; border-radius:8px; text-align:center;">
+        <h2>Total Events</h2>
+        <p style="font-size:2em; font-weight:bold;">{{ total_events }}</p>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div style="flex:2; min-width:300px; background:#f1f1f1; padding:20px; border-radius:8px;">
+        <h2>Upcoming Events</h2>
+        <ul>
+        {% for event in upcoming_events %}
+            <li>{{ event.name }} — {{ event.date.strftime('%Y-%m-%d') }}</li>
+        {% else %}
+            <li>No upcoming events.</li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Recent Attendance Changes -->
+    <div style="flex:2; min-width:300px; background:#f1f1f1; padding:20px; border-radius:8px;">
+        <h2>Recent Attendance Changes</h2>
+        <ul>
+        {% for change in recent_changes %}
+            <li>
+                {{ change.student_name }} - {{ change.event_name }}: {{ change.old_hours }} → {{ change.new_hours }}
+                <small>by {{ change.changed_by }} at {{ change.changed_at.strftime('%Y-%m-%d %H:%M') }}</small>
+            </li>
+        {% else %}
+            <li>No recent changes.</li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

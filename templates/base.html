@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { background-color: #333; color: #fff; padding: 15px; }
+        header nav a {
+            color: white;
+            margin-right: 20px;
+            text-decoration: none;
+        }
+        header nav a:hover { text-decoration: underline; }
+        main { padding: 20px; }
+nav {
+    display: flex;
+    align-items: center;
+}
+
+nav a {
+    color: white;
+    margin-right: 20px;
+    text-decoration: none;
+    position: relative;
+}
+
+nav a:hover { text-decoration: underline; }
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #444;
+    min-width: 150px;
+    z-index: 1;
+    top: 100%;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #555;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+</style>
+</head>
+<body>
+    <header>
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('events') }}">Events</a>
+
+        <!-- Attendance dropdown -->
+        <div class="dropdown">
+            <a href="#">Attendance &#9662;</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('attendance_dashboard') }}">Attendance Dashboard</a>
+                <a href="{{ url_for('attendance_history') }}">Attendance History</a>
+            </div>
+        </div>
+
+        <!-- Students dropdown -->
+        <div class="dropdown">
+            <a href="#">Students &#9662;</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('students') }}">Students</a>
+                <a href="{{ url_for('year_levels') }}">Year Level</a>
+                <a href="{{ url_for('academic_years') }}">AY</a>
+            </div>
+        </div>
+
+        <a href="{{ url_for('users') }}">Users</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+    <div>Logged in as: {{ session.get('username') }} ({{ session.get('role') }})</div>
+</header>
+
+
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
