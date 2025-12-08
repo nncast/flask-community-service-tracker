@@ -26,6 +26,14 @@ body {
 }
 
 /* Logo section */
+.logo-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
 .login-logo {
     margin-bottom: 25px;
 }

@@ -7,15 +7,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.js"></script>
+
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <!-- Sidebar -->
 <aside class="sidebar">
     <div class="sidebar-header">
         <div class="logo">
-            <div class="logo-icon">🎓</div>
+            <div class="logo-icon">
+                <img src="{{ url_for('static', filename='imgs/cit_logo.png') }}" alt="Logo">
+            </div>
             <div class="logo-text">
                 <div class="logo-main">CIT Community Service Tracker</div>
                 <div class="logo-subtitle">University of La Salette</div>

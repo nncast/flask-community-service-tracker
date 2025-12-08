@@ -24,20 +24,34 @@
                 </div>
             </div>
 
-            <div class="form-row semester-group">
+            <div class="semester-group">
                 <h4>1st Semester</h4>
-                <label for="semester1-start">Start:</label>
-                <input type="date" name="start1" id="semester1-start" required value="2025-08-01">
-                <label for="semester1-end">End:</label>
-                <input type="date" name="end1" id="semester1-end" required value="2025-12-25">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start:</label>
+                        <input type="date" name="start1" required value="2025-08-01">
+                    </div>
+                    <div class="form-group">
+                        <label>End:</label>
+                        <input type="date" name="end1" required value="2025-12-25">
+                    </div>
+                </div>
             </div>
 
-            <div class="form-row semester-group">
+            <div class="semester-group">
                 <h4>2nd Semester</h4>
-                <label for="semester2-start">Start:</label>
-                <input type="date" name="start2" id="semester2-start" required value="2026-01-01">
-                <label for="semester2-end">End:</label>
-                <input type="date" name="end2" id="semester2-end" required value="2026-05-30">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start:</label>
+                        <input type="date" name="start1" required value="2026-01-01">
+                    </div>
+                    <div class="form-group">
+                        <label>End:</label>
+                        <input type="date" name="end1" required value="2026-05-30">
+                    </div>
+                </div>
             </div>
 
             <button type="submit" class="btn-primary">Add Academic Year</button>
@@ -90,8 +104,18 @@
                                 <input type="date" name="end2" value="{{ ay.semesters[1].end_date if ay.semesters|length >=2 and ay.semesters[1] else '' }}" class="input-semester-end2">
                             </td>
                             <td class="actions-cell">
-                                <button type="submit" class="btn-update">Update</button>
-                                <a href="{{ url_for('delete_academic_year', ay_id=ay.id) }}" class="btn-delete" onclick="return confirm('Delete this academic year?')">Delete</a>
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn-update" title="Update">
+                                        <span class="btn-icon">💾</span>
+                                    </button>
+
+                                    <a href="{{ url_for('delete_academic_year', ay_id=ay.id) }}"
+                                    class="btn-delete"
+                                    title="Delete"
+                                    onclick="return confirm('Delete this academic year?')">
+                                        <span class="btn-icon">🗑️</span>
+                                    </a>
+                                </div>
                             </td>
                         </form>
                     </tr>

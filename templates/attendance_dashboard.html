@@ -3,17 +3,34 @@
 
 {% block content %}
 <style>
-    .table-container {
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
+.attendance-table-wrapper {
+    width: 100%;
+    overflow-x: auto; /* horizontal scroll when needed */
+}
+
+.table-container {
+    width: 100%; /* fill wrapper */
+    overflow: hidden; /* do not overflow container */
 }
 
 .attendance-table {
-    width: max-content;
+    width: 100%;
+    min-width: 800px; /* ensures it doesn’t collapse if very few columns */
+    border-collapse: collapse;
+    table-layout: fixed; /* distributes columns evenly */
 }
 
+.sticky-col {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 2;
+    border-right: 1px solid #ccc;
+}
+
+
 </style>
+
 <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance_dashboard.css') }}">
 
 <div class="dashboard-header">
@@ -49,136 +66,143 @@
 </div>
 
 <div class="attendance-table-wrapper">
-
     <div class="content-card">
         <div class="card-header">
-        <h3>Attendance Records</h3>
-        <div class="filters">
-            <input type="text" id="nameSearchInput" class="filter-select" placeholder="Search by student name..." onchange="applyFilters()">
+            <h3>Attendance Records</h3>
+            <div class="filters">
+                <input type="text" id="nameSearchInput" class="filter-select" placeholder="Search by student name..." onchange="applyFilters()">
 
-            <select id="academicYearFilter" class="filter-select">
-                {% for ay in academic_years %}
-                <option value="{{ ay.id }}" {% if ay.id == selected_ay_id %}selected{% endif %}>
-                    {{ ay.year }}
-                </option>
-                {% endfor %}
-            </select>
+                <select id="academicYearFilter" class="filter-select">
+                    {% for ay in academic_years %}
+                    <option value="{{ ay.id }}" {% if ay.id == selected_ay_id %}selected{% endif %}>
+                        {{ ay.year }}
+                    </option>
+                    {% endfor %}
+                </select>
 
-            <select id="semesterFilter" class="filter-select">
-                <option value="">All Semesters</option>
-                {% for sem in semesters %}
-                <option value="{{ sem.id }}" {% if sem.id == selected_sem_id %}selected{% endif %}>
-                    {{ sem.name }}
-                </option>
-                {% endfor %}
-            </select>
+                <select id="semesterFilter" class="filter-select">
+                    <option value="">All Semesters</option>
+                    {% for sem in semesters %}
+                    <option value="{{ sem.id }}" {% if sem.id == selected_sem_id %}selected{% endif %}>
+                        {{ sem.name }}
+                    </option>
+                    {% endfor %}
+                </select>
 
-            <select id="yearLevelFilter" class="filter-select">
-                <option value="">All Year Levels</option>
-                {% for level in year_levels %}
-                <option value="{{ level.level }}-{{ level.section }}">
-                    {{ level.level }}-{{ level.section }}
-                </option>
-                {% endfor %}
-            </select>
+                <select id="yearLevelFilter" class="filter-select">
+                    <option value="">All Year Levels</option>
+                    {% for level in year_levels %}
+                    <option value="{{ level.level }}-{{ level.section }}">
+                        {{ level.level }}-{{ level.section }}
+                    </option>
+                    {% endfor %}
+                </select>
 
-            <select id="eventFilter" class="filter-select">
-                <option value="">All Events</option>
-                {% for event in events %}
-                <option value="{{ event.id }}">{{ event.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-
-    <form method="post" action="{{ url_for('save_all_attendance') }}">
-        <div class="card-content">
-             <div class="table-container">
-                <table class="attendance-table">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" class="sticky-col">Student ID</th>
-                            <th rowspan="2" class="sticky-col name-col">Name</th>
-                            <th rowspan="2" class="sticky-col">Year Level</th>
-                            <th rowspan="2" class="sticky-col total-col">Total CS Hours</th>
-
-                            {% for event in events %}
-                                <th colspan="3"
-                                    class="event-header"
-                                    data-event-id="{{ event.id }}">
-                                    <div class="event-info">
-                                        <strong>{{ event.name }}</strong>
-                                        <span class="event-date">{{ event.date.strftime('%m/%d/%Y') }}</span>
-                                        <span class="event-hours">({{ event.required_hours }}h required)</span>
-                                    </div>
-                                </th>
-                            {% endfor %}
-                        </tr>
-
-                        <tr>
-                            {% for event in events %}
-                                <th class="sub-header" data-event-id="{{ event.id }}">Time In</th>
-                                <th class="sub-header" data-event-id="{{ event.id }}">Time Out</th>
-                                <th class="sub-header" data-event-id="{{ event.id }}">Hours</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for student in students %}
-                        <tr class="student-row"
-                            data-year-level="{{ student.year_level.level }}-{{ student.year_level.section }}"
-                            data-academic-year="{{ student.year_level.academic_year_id }}"
-                            data-semester-ids="{{ student.event_attendances | map(attribute='event.semester_id') | list | join(',') }}">
-
-
-                            <td class="sticky-col">{{ student.student_id }}</td>
-                            <td class="sticky-col name-col">{{ student.lname }}, {{ student.fname }} {{ student.mname }}</td>
-                            <td class="sticky-col">{{ student.year_level.level }}-{{ student.year_level.section }}</td>
-
-                            <td class="sticky-col total-col">
-                                <span class="total-hours">{{ student.event_attendances | sum(attribute='accumulated_hours') | round(2) }}</span>
-                            </td>
-
-                            {% for event in events %}
-                                {% set attendance = student.event_attendances | selectattr("event_id", "equalto", event.id) | first %}
-
-                                <td class="checkbox-cell" data-event-id="{{ event.id }}">
-                                    <input type="checkbox"
-                                        name="timein_{{ attendance.id if attendance else 0 }}"
-                                        {% if attendance and attendance.timed_in %}checked{% endif %}>
-                                </td>
-
-                                <td class="checkbox-cell" data-event-id="{{ event.id }}">
-                                    <input type="checkbox"
-                                        name="timeout_{{ attendance.id if attendance else 0 }}"
-                                        {% if attendance and attendance.timed_out %}checked{% endif %}>
-                                </td>
-
-                                <td class="hours-cell" data-event-id="{{ event.id }}">
-                                    <input type="number" step="0.1" min="0" max="{{ event.required_hours }}"
-                                        name="hours_{{ attendance.id if attendance else 0 }}"
-                                        value="{{ attendance.accumulated_hours if attendance else 0 }}">
-                                </td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <select id="eventFilter" class="filter-select">
+                    <option value="">All Events</option>
+                    {% for event in events %}
+                    <option value="{{ event.id }}">{{ event.name }}</option>
+                    {% endfor %}
+                </select>
             </div>
+        </div>
 
-            <div class="action-bar">
-                <button type="submit" class="btn-primary">Save All Attendance</button>
+        <form method="post" action="{{ url_for('save_all_attendance') }}">
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="sticky-col">Student ID</th>
+                                <th rowspan="2" class="sticky-col name-col">Name</th>
+                                <th rowspan="2" class="sticky-col">Year Level</th>
+                                <th rowspan="2" class="sticky-col total-col">Total CS Hours</th>
 
-                <div class="action-buttons">
-                    <a href="{{ url_for('attendance_history') }}" class="btn-secondary">View Hours History</a>
-                    <button type="button" id="exportBtn" class="btn-secondary">Export Data</button>
+                                {% for event in events %}
+                                    <th colspan="3"
+                                        class="event-header"
+                                        data-event-id="{{ event.id }}"
+                                        data-event-id-header="{{ event.id }}">
+                                        <div class="event-info">
+                                            <strong>{{ event.name }}</strong>
+                                            <div class="event-date-chip">
+                                                <span>{{ event.date.strftime('%m/%d/%Y') }}</span>
+                                            </div>
+                                            <span class="event-hours">({{ event.required_hours }}h required)</span>
+                                        </div>
+                                    </th>
+                                {% endfor %}
+                            </tr>
+
+                            <tr>
+                                {% for event in events %}
+                                    <th class="sub-header" data-event-id="{{ event.id }}" data-event-id-header="{{ event.id }}">Time In</th>
+                                    <th class="sub-header" data-event-id="{{ event.id }}" data-event-id-header="{{ event.id }}">Time Out</th>
+                                    <th class="sub-header" data-event-id="{{ event.id }}" data-event-id-header="{{ event.id }}">Hours</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for student in students %}
+                            <tr class="student-row"
+                                data-year-level="{{ student.year_level.level }}-{{ student.year_level.section }}"
+                                data-academic-year="{{ student.year_level.academic_year_id }}"
+                                data-semester-ids="{{ student.event_attendances | map(attribute='event.semester_id') | list | join(',') }}">
+
+                                <td class="sticky-col">{{ student.student_id }}</td>
+                                <td class="sticky-col name-col">{{ student.lname }}, {{ student.fname }} {{ student.mname }}</td>
+                                <td class="sticky-col">{{ student.year_level.level }}-{{ student.year_level.section }}</td>
+                                <td class="sticky-col total-col">
+                                    <span class="total-hours">{{ student.event_attendances | sum(attribute='accumulated_hours') | round(2) }}</span>
+                                </td>
+
+                                {% for event in events %}
+                                    {% set attendance = student.event_attendances | selectattr("event_id", "equalto", event.id) | first %}
+                                    
+                                    {% if attendance %}
+                                        <td class="checkbox-cell" data-event-id="{{ event.id }}">
+                                            <input type="checkbox" name="timein_{{ attendance.id }}" {% if attendance.timed_in %}checked{% endif %}>
+                                        </td>
+                                        <td class="checkbox-cell" data-event-id="{{ event.id }}">
+                                            <input type="checkbox" name="timeout_{{ attendance.id }}" {% if attendance.timed_out %}checked{% endif %}>
+                                        </td>
+                                        <td class="hours-cell" data-event-id="{{ event.id }}">
+                                            <input type="number" step="0.1" min="0" max="{{ event.required_hours }}"
+                                                name="hours_{{ attendance.id }}"
+                                                value="{{ attendance.accumulated_hours }}">
+                                        </td>
+                                    {% else %}
+                                        <!-- No attendance record: disable inputs -->
+                                        <td class="checkbox-cell" data-event-id="{{ event.id }}">
+                                            <input type="checkbox" disabled>
+                                        </td>
+                                        <td class="checkbox-cell" data-event-id="{{ event.id }}">
+                                            <input type="checkbox" disabled>
+                                        </td>
+                                        <td class="hours-cell" data-event-id="{{ event.id }}">
+                                            <input type="number" step="0.1" min="0" max="{{ event.required_hours }}" disabled>
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+
+                    </table>
+                </div>
+
+                <div class="action-bar">
+                    <button type="submit" class="btn-primary">Save All Attendance</button>
+
+                    <div class="action-buttons">
+                        <a href="{{ url_for('attendance_history') }}" class="btn-secondary">View Hours History</a>
+                        <button type="button" id="exportBtn" class="btn-secondary">Export Data</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
-    </table>
+        </form>
+    </div>
 </div>
 
 {% with messages = get_flashed_messages() %}
@@ -230,6 +254,20 @@ const eventsByAY = {
     {% endfor %}
 };
 
+/* ===============================
+   CONDITIONAL HORIZONTAL SCROLL
+   =============================== */
+function updateScrollBasedOnEventCount() {
+    const eventCount = {{ events|length }};
+    const wrapper = document.querySelector(".attendance-table-wrapper");
+    if (!wrapper) return;
+
+    if (eventCount > 2) {
+        wrapper.style.overflowX = "auto";
+    } else {
+        wrapper.style.overflowX = "hidden";
+    }
+}
 
 /* ===============================
    FILTER ELEMENTS
@@ -240,13 +278,11 @@ const semesterFilter    = document.getElementById("semesterFilter");
 const eventFilter       = document.getElementById("eventFilter");
 const nameSearchInput   = document.getElementById("nameSearchInput");
 
-
 /* ===============================
    POPULATE DROPDOWNS
    =============================== */
 function populateYearLevels(ayId) {
     yearLevelFilter.innerHTML = '<option value="">All Year Levels</option>';
-
     (yearLevelsByAY[ayId] || []).forEach(yl => {
         const opt = document.createElement("option");
         opt.value = yl.label;
@@ -257,7 +293,6 @@ function populateYearLevels(ayId) {
 
 function populateSemesters(ayId) {
     semesterFilter.innerHTML = '<option value="">All Semesters</option>';
-
     (semestersByAY[ayId] || []).forEach(sem => {
         const opt = document.createElement("option");
         opt.value = sem.id;
@@ -268,7 +303,6 @@ function populateSemesters(ayId) {
 
 function populateEvents(ayId, semId = "") {
     eventFilter.innerHTML = '<option value="">All Events</option>';
-
     (eventsByAY[ayId] || []).forEach(ev => {
         if (!semId || ev.semester_id === semId) {
             const opt = document.createElement("option");
@@ -279,35 +313,28 @@ function populateEvents(ayId, semId = "") {
     });
 }
 
-
 /* ===============================
    FILTERING LOGIC
    =============================== */
 function applyFilters() {
-    const nameFilter = nameSearchInput.value.toLowerCase();
+    const nameFilter   = nameSearchInput.value.toLowerCase();
     const yearLevelVal = yearLevelFilter.value;
     const semesterVal  = semesterFilter.value;
     const eventVal     = eventFilter.value;
 
     const rows = document.querySelectorAll(".attendance-table tbody tr");
 
-    /* Filter row visibility */
     rows.forEach(row => {
         const studentName = row.querySelector(".name-col").textContent.toLowerCase();
         const studentYear = row.dataset.yearLevel;
         const studentSems = row.dataset.semesterIds ? row.dataset.semesterIds.split(",") : [];
-
         let visible = true;
-
         if (nameFilter && !studentName.includes(nameFilter)) visible = false;
         if (yearLevelVal && studentYear !== yearLevelVal) visible = false;
         if (semesterVal && !studentSems.includes(semesterVal)) visible = false;
-
         row.style.display = visible ? "" : "none";
     });
 
-
-    /* Hide/show event columns */
     const allHeaders = document.querySelectorAll("[data-event-id-header]");
     const allCells = document.querySelectorAll("[data-event-id]");
 
@@ -315,62 +342,36 @@ function applyFilters() {
         allHeaders.forEach(h => h.style.display = "");
         allCells.forEach(td => td.style.display = "");
     } else {
-        allHeaders.forEach(h => {
-            h.style.display = (h.dataset.eventIdHeader === eventVal) ? "" : "none";
-        });
-        allCells.forEach(td => {
-            td.style.display = (td.dataset.eventId === eventVal) ? "" : "none";
-        });
+        allHeaders.forEach(h => h.style.display = (h.dataset.eventIdHeader === eventVal) ? "" : "none");
+        allCells.forEach(td => td.style.display = (td.dataset.eventId === eventVal) ? "" : "none");
     }
 
-    forceHorizontalScroll();
+    updateScrollBasedOnEventCount();
 }
-
-
-/* ===============================
-   FORCE HORIZONTAL SCROLL
-   =============================== */
-function forceHorizontalScroll() {
-    const tableWrapper = document.querySelector(".attendance-table-wrapper");
-    if (!tableWrapper) return;
-
-    tableWrapper.style.overflowX = "auto";
-    tableWrapper.style.display = "block";
-    tableWrapper.style.whiteSpace = "nowrap";
-}
-
 
 /* ===============================
    ON FILTER CHANGE
    =============================== */
 academicYearFilter.addEventListener("change", () => {
     const ayId = academicYearFilter.value;
-
     populateYearLevels(ayId);
     populateSemesters(ayId);
     populateEvents(ayId);
-
     yearLevelFilter.value = "";
-    semesterFilter.value  = "";
-    eventFilter.value     = "";
-
+    semesterFilter.value = "";
+    eventFilter.value = "";
     applyFilters();
 });
 
 semesterFilter.addEventListener("change", () => {
-    const ayId  = academicYearFilter.value;
-    const semId = semesterFilter.value;
-
-    populateEvents(ayId, semId);
+    populateEvents(academicYearFilter.value, semesterFilter.value);
     eventFilter.value = "";
-
     applyFilters();
 });
 
 yearLevelFilter.addEventListener("change", applyFilters);
 eventFilter.addEventListener("change", applyFilters);
 nameSearchInput.addEventListener("input", applyFilters);
-
 
 /* ===============================
    INITIAL LOAD
@@ -380,29 +381,21 @@ populateYearLevels(initialAY);
 populateSemesters(initialAY);
 populateEvents(initialAY, semesterFilter.value);
 applyFilters();
+updateScrollBasedOnEventCount();
 
+/* ===============================
+   EXPORT BUTTON
+   =============================== */
 const exportBtn = document.getElementById("exportBtn");
 exportBtn.addEventListener("click", () => {
-    const nameFilter = nameSearchInput.value;
-    const ayFilter   = academicYearFilter.value;
-    const semFilter  = semesterFilter.value;
-    const ylFilter   = yearLevelFilter.value;
-    const evFilter   = eventFilter.value;
-
     const params = new URLSearchParams({
-        name: nameFilter,
-        ay: ayFilter,
-        semester: semFilter,
-        year_level: ylFilter,
-        event: evFilter
+        name: nameSearchInput.value,
+        ay: academicYearFilter.value,
+        semester: semesterFilter.value,
+        year_level: yearLevelFilter.value,
+        event: eventFilter.value
     });
-
     window.location.href = `/export_attendance?${params.toString()}`;
 });
-
-
 </script>
-
-
-
 {% endblock %}

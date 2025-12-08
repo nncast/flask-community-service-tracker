@@ -25,7 +25,10 @@ body, html {
 /* Sidebar - Dark Purple Theme */
 .sidebar {
     width: 320px;
-    background: linear-gradient(180deg, #4c1d95 0%, #3b0764 100%);
+    background:
+        linear-gradient(180deg, rgba(76, 29, 149, 0.85), rgba(59, 7, 100, 0.85)),
+        url('/static/imgs/lasalette.jpg') no-repeat center center;
+    background-size: cover;
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -36,6 +39,7 @@ body, html {
     z-index: 1000;
     border-right: 1px solid #5b21b6;
 }
+
 
 .sidebar-header {
     padding: 24px;
@@ -48,6 +52,11 @@ body, html {
     display: flex;
     align-items: flex-start;
     gap: 12px;
+}
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .logo-icon {
@@ -345,22 +354,29 @@ body, html {
     flex: 1;
     padding: 40px;
     margin-left: 320px;
-    background: #f8fafc;
     min-height: 100vh;
-    position: relative; /* needed for watermark */
+    position: relative;
     z-index: 1;
+
+    /* NEW background image */
+    background: 
+        linear-gradient(rgba(255,255,255,0.75), rgba(255,255,255,0.75)),
+        url('/static/imgs/watermark.png') no-repeat center center;
+    background-size: cover;
 }
 
+
 .main-content::before {
-    content: '';
+    content: "";
     position: absolute;
-    bottom: 20px;
+    bottom: 20px;   /* adjust position */
     right: 20px;
-    width: 150px;
-    height: 150px;
-    background: url('/static/imgs/watermark.png') no-repeat center center;
+    width: 450px;   /* adjust size */
+    height: auto;
+
+    background: url('/static/imgs/watermark.png') no-repeat bottom right;
     background-size: contain;
-    opacity: 0.05;
+    opacity: 0.9;   /* make text more visible */
     pointer-events: none;
     z-index: 0;
 }
@@ -747,3 +763,4 @@ body, html {
         font-size: 0.9em;
     }
 }
+

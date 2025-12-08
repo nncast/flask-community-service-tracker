@@ -18,7 +18,6 @@ migrate = Migrate(app, db)
 # ----------------- 4. Import routes after app creation -----------------
 from routes import *
 
-
 # ----------------- 5. Create tables and default admin -----------------
 with app.app_context():
     db.create_all()

@@ -327,7 +327,6 @@ def students():
                            ay_filter=ay_filter, yl_filter=yl_filter)
 
 
-
 @app.route("/students/add", methods=["POST"])
 def add_student():
     student_id = request.form.get("student_id")
@@ -587,6 +586,8 @@ def attendance_dashboard():
         selected_sem_id=selected_sem_id
     )
 
+
+
     # Get filter params
     selected_ay_id = request.args.get("academic_year", type=int)
     selected_sem_id = request.args.get("semester", type=int)
@@ -631,7 +632,6 @@ def attendance_dashboard():
     else:
         events = []
     year_levels = YearLevel.query.order_by(YearLevel.academic_year_id, YearLevel.level, YearLevel.section).all()
-    events = Event.query.order_by(Event.date).all()
 
     return render_template(
         "attendance_dashboard.html",
@@ -644,44 +644,81 @@ def attendance_dashboard():
         selected_sem_id=selected_sem_id
     )
 
-
-
 @app.route("/attendance_dashboard/save", methods=["POST"])
 def save_all_attendance():
-    current_user_id = session["user_id"]
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please login first.", "error")
+        return redirect(url_for("login"))
 
-    for key, value in request.form.items():
-        parts = key.split("_")
-        if len(parts) != 2:
-            continue
-        field, att_id = parts
-        attendance = EventAttendance.query.get(int(att_id))
-        if not attendance:
-            continue
+    for attendance in EventAttendance.query.all():
+        old_hours = attendance.accumulated_hours
+        event_hours = attendance.event.required_hours
 
-        if field == "timein":
-            attendance.timed_in = True
-        elif field == "timeout":
-            attendance.timed_out = True
-        elif field == "hours":
-            try:
-                new_hours = float(value)
-            except:
-                new_hours = attendance.accumulated_hours
-            if new_hours != attendance.accumulated_hours:
-                log = EventAttendanceHistory(
-                    attendance_id=attendance.id,
-                    old_hours=attendance.accumulated_hours,
-                    new_hours=new_hours,
-                    changed_by=current_user_id,
-                    reason="Manual adjustment via attendance dashboard"
-                )
-                db.session.add(log)
-                attendance.accumulated_hours = new_hours
+        # Update timed_in and timed_out from form
+        timed_in = bool(request.form.get(f"timein_{attendance.id}"))
+        timed_out = bool(request.form.get(f"timeout_{attendance.id}"))
+        attendance.timed_in = timed_in
+        attendance.timed_out = timed_out
+
+        # Calculate accumulated_hours
+        if timed_in and timed_out:
+            new_hours = 0
+        elif timed_in or timed_out:
+            new_hours = max(event_hours / 2, 0)
+        else:
+            new_hours = max(event_hours, 0)
+
+        if old_hours != new_hours:
+            attendance.accumulated_hours = new_hours
+            history = EventAttendanceHistory(
+                attendance_id=attendance.id,
+                old_hours=old_hours,
+                new_hours=new_hours,
+                changed_by=user_id,
+                reason="Manual adjustment via attendance dashboard"
+            )
+            db.session.add(history)
 
     db.session.commit()
-    flash("Attendance and hour adjustments saved.")
+    flash("Attendance saved successfully.", "success")
     return redirect(url_for("attendance_dashboard"))
+
+    for attendance in EventAttendance.query.all():
+        old_hours = attendance.accumulated_hours
+        event_hours = attendance.event.required_hours
+
+        # Update timed_in and timed_out from form
+        timed_in = bool(request.form.get(f"timein_{attendance.id}"))
+        timed_out = bool(request.form.get(f"timeout_{attendance.id}"))
+        attendance.timed_in = timed_in
+        attendance.timed_out = timed_out
+
+        # Calculate accumulated_hours based on your logic
+        if timed_in and timed_out:
+            new_hours = 0
+        elif timed_in or timed_out:
+            new_hours = max(event_hours / 2, 0)
+        else:
+            new_hours = max(event_hours, 0)
+
+        # Only update if changed
+        if old_hours != new_hours:
+            attendance.accumulated_hours = new_hours
+            # optional: log history
+            history = EventAttendanceHistory(
+                attendance_id=attendance.id,
+                old_hours=old_hours,
+                new_hours=new_hours,
+                changed_by=current_user.id,
+                reason="Updated via dashboard"
+            )
+            db.session.add(history)
+
+    db.session.commit()
+    flash("Attendance saved successfully.", "success")
+    return redirect(url_for("attendance_dashboard"))
+
 
 @app.route("/export_attendance")
 def export_attendance():
@@ -803,3 +840,5 @@ def promote_student(student_id):
     db.session.commit()
     flash(f"{student.fname} {student.lname} promoted to {next_level}-{next_yl.section} ({next_ay.year})")
     return redirect(url_for("students"))
+
+

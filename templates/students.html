@@ -33,7 +33,11 @@
                 
                 <div class="form-group">
                     <label>Student ID</label>
-                    <input type="text" name="student_id" required placeholder="Enter student ID">
+                    <input type="text" name="student_id" required 
+       placeholder="Enter student ID"
+       maxlength="8"
+       id="studentIdInput">
+
                 </div>
             </div>
 
@@ -342,6 +346,32 @@ document.addEventListener("DOMContentLoaded", function() {
         addFormDiv.style.display = (addFormDiv.style.display === "none" || addFormDiv.style.display === "") ? "block" : "none";
     });
 });
+
+function autoFormatStudentId(input) {
+    let v = input.value.replace(/-/g, ""); // remove existing dash
+    if (v.length > 2) {
+        v = v.slice(0, 2) + "-" + v.slice(2);
+    }
+    input.value = v.substring(0, 8); // enforce max length after formatting
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    // Add Student form
+    const sid = document.getElementById("studentIdInput");
+    if (sid) {
+        sid.addEventListener("input", function() {
+            autoFormatStudentId(sid);
+        });
+    }
+
+    // Edit student rows
+    document.querySelectorAll("[id^='studentIdInputRow']").forEach(inp => {
+        inp.addEventListener("input", () => autoFormatStudentId(inp));
+    });
+
+});
+
 </script>
 
 {% endblock %}
