@@ -90,41 +90,64 @@
         </div>
 
         <div class="content-card">
-            <div class="card-header">
-                <h3>Recent Attendance Changes</h3>
-                <a href="{{ url_for('attendance_history') }}" class="view-all">View History</a>
-            </div>
-            <div class="card-content">
-                {% if recent_changes %}
-                <div class="changes-list">
-                    {% for change in recent_changes %}
-                    <div class="change-item">
-                        <div class="change-header">
-                            <strong>{{ change.attendance.student.fname }} {{ change.attendance.student.lname }}</strong>
-                            <span class="change-time">{{ change.changed_at.strftime('%b %d, %H:%M') }}</span>
-                        </div>
-                        <div class="change-details">
-                            <span class="event-name">{{ change.attendance.event.name }}</span>
-                            <div class="hours-change">
-                                <span class="old-hours">{{ change.old_hours }}</span>
-                                <span class="arrow">→</span>
-                                <span class="new-hours">{{ change.new_hours }}</span>
-                            </div>
-                        </div>
-                        <div class="change-meta">
-                            by {{ username }}  <!-- show current logged-in user -->
-                        </div>
+    <div class="card-header">
+        <h3>Recent Attendance Changes</h3>
+        <a href="{{ url_for('attendance_history') }}" class="view-all">View History</a>
+    </div>
+    <div class="card-content">
+        {% if recent_changes %}
+        <div class="changes-list">
+            {% for change in recent_changes %}
+            <div class="change-item">
+
+                <div class="change-header">
+                    <strong>
+                        {% if change.attendance and change.attendance.student %}
+                            {{ change.attendance.student.fname }} {{ change.attendance.student.lname }}
+                        {% else %}
+                            Unknown Student
+                        {% endif %}
+                    </strong>
+
+                    <span class="change-time">{{ change.changed_at.strftime('%b %d, %H:%M') }}</span>
+                </div>
+
+                <div class="change-details">
+                    <span class="event-name">
+                        {% if change.attendance and change.attendance.event %}
+                            {{ change.attendance.event.name }}
+                        {% else %}
+                            Unknown Event
+                        {% endif %}
+                    </span>
+
+                    <div class="hours-change">
+                        {% if change.attendance %}
+                            <span class="old-hours">{{ change.old_hours }}</span>
+                            <span class="arrow">→</span>
+                            <span class="new-hours">{{ change.new_hours }}</span>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
                     </div>
-                    {% endfor %}
                 </div>
-                {% else %}
-                <div class="empty-state">
-                    <span class="empty-icon">📊</span>
-                    <p>No recent changes</p>
+
+                <div class="change-meta">
+                    by {{ username }}
                 </div>
-                {% endif %}
+
             </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="empty-icon">📊</span>
+            <p>No recent changes</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
     </div>
 </div>
 {% endblock %}

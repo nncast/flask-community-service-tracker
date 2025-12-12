@@ -170,7 +170,7 @@
                                         <td class="hours-cell" data-event-id="{{ event.id }}">
                                             <input type="number" step="0.1" min="0" max="{{ event.required_hours }}"
                                                 name="hours_{{ attendance.id }}"
-                                                value="{{ attendance.accumulated_hours }}">
+                                                value="{{ attendance.accumulated_hours }}" disabled readonly>
                                         </td>
                                     {% else %}
                                         <!-- No attendance record: disable inputs -->

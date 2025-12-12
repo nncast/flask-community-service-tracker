@@ -537,7 +537,7 @@ def attendance_dashboard():
     # Semesters for the selected academic year
     semesters = current_ay.semesters if current_ay else []
 
-    # Default: selected semester (None if not chosen)
+    # Selected semester (None if not chosen)
     current_semester = Semester.query.get(selected_sem_id) if selected_sem_id else None
 
     # Students active in the selected academic year
@@ -560,78 +560,19 @@ def attendance_dashboard():
     # Events filtered by semester if selected, otherwise all semesters in that AY
     if current_ay:
         if current_semester:
-            events = (
-                Event.query.filter_by(semester_id=current_semester.id)
-                .order_by(Event.date)
-                .all()
-            )
-        else:
-            sem_ids = [sem.id for sem in semesters]
-            events = (
-                Event.query.filter(Event.semester_id.in_(sem_ids))
-                .order_by(Event.date)
-                .all()
-            )
-    else:
-        events = []
-
-    return render_template(
-        "attendance_dashboard.html",
-        students=students,
-        events=events,
-        year_levels=year_levels,
-        academic_years=academic_years,
-        semesters=semesters,
-        selected_ay_id=selected_ay_id,
-        selected_sem_id=selected_sem_id
-    )
-
-
-
-    # Get filter params
-    selected_ay_id = request.args.get("academic_year", type=int)
-    selected_sem_id = request.args.get("semester", type=int)
-
-    # Academic years and semesters
-    academic_years = AcademicYear.query.order_by(AcademicYear.year.desc()).all()
-
-    # Default: latest academic year
-    if not selected_ay_id and academic_years:
-        current_ay = academic_years[0]
-        selected_ay_id = current_ay.id
-    else:
-        current_ay = AcademicYear.query.get(selected_ay_id)
-
-    # Semesters for the selected academic year
-    semesters = current_ay.semesters if current_ay else []
-
-    # Default: if no semester selected, include all
-    current_semester = None
-    if selected_sem_id:
-        current_semester = Semester.query.get(selected_sem_id)
-
-    # Students active in the selected academic year
-    if current_ay:
-        students = Student.query.join(YearLevel) \
-                   .filter(Student.status=="active", YearLevel.academic_year_id==current_ay.id) \
-                   .order_by(Student.lname, Student.fname, Student.mname).all()
-        year_levels = YearLevel.query.filter_by(academic_year_id=current_ay.id) \
-                        .order_by(YearLevel.level, YearLevel.section).all()
-    else:
-        students = []
-        year_levels = []
-
-    # Events filtered by semester if selected, otherwise all semesters in that AY
-    if current_ay:
-        if current_semester:
             events = Event.query.filter_by(semester_id=current_semester.id).order_by(Event.date).all()
         else:
-            # All semesters in this AY
             sem_ids = [sem.id for sem in semesters]
             events = Event.query.filter(Event.semester_id.in_(sem_ids)).order_by(Event.date).all()
     else:
         events = []
-    year_levels = YearLevel.query.order_by(YearLevel.academic_year_id, YearLevel.level, YearLevel.section).all()
+
+    # Calculate total accumulated hours for all active students
+    total_hours = sum(
+        student.total_hours_override if getattr(student, "total_hours_override", None) is not None
+        else sum(att.accumulated_hours for att in student.event_attendances)
+        for student in students
+    )
 
     return render_template(
         "attendance_dashboard.html",
@@ -641,8 +582,10 @@ def attendance_dashboard():
         academic_years=academic_years,
         semesters=semesters,
         selected_ay_id=selected_ay_id,
-        selected_sem_id=selected_sem_id
+        selected_sem_id=selected_sem_id,
+        total_hours=total_hours  # pass to template
     )
+
 
 @app.route("/attendance_dashboard/save", methods=["POST"])
 def save_all_attendance():
@@ -651,6 +594,7 @@ def save_all_attendance():
         flash("Please login first.", "error")
         return redirect(url_for("login"))
 
+    # Update each event attendance
     for attendance in EventAttendance.query.all():
         old_hours = attendance.accumulated_hours
         event_hours = attendance.event.required_hours
@@ -661,7 +605,7 @@ def save_all_attendance():
         attendance.timed_in = timed_in
         attendance.timed_out = timed_out
 
-        # Calculate accumulated_hours
+        # Recalculate hours based on checkboxes
         if timed_in and timed_out:
             new_hours = 0
         elif timed_in or timed_out:
@@ -680,44 +624,21 @@ def save_all_attendance():
             )
             db.session.add(history)
 
-    db.session.commit()
-    flash("Attendance saved successfully.", "success")
-    return redirect(url_for("attendance_dashboard"))
-
-    for attendance in EventAttendance.query.all():
-        old_hours = attendance.accumulated_hours
-        event_hours = attendance.event.required_hours
-
-        # Update timed_in and timed_out from form
-        timed_in = bool(request.form.get(f"timein_{attendance.id}"))
-        timed_out = bool(request.form.get(f"timeout_{attendance.id}"))
-        attendance.timed_in = timed_in
-        attendance.timed_out = timed_out
-
-        # Calculate accumulated_hours based on your logic
-        if timed_in and timed_out:
-            new_hours = 0
-        elif timed_in or timed_out:
-            new_hours = max(event_hours / 2, 0)
-        else:
-            new_hours = max(event_hours, 0)
-
-        # Only update if changed
-        if old_hours != new_hours:
-            attendance.accumulated_hours = new_hours
-            # optional: log history
-            history = EventAttendanceHistory(
-                attendance_id=attendance.id,
-                old_hours=old_hours,
-                new_hours=new_hours,
-                changed_by=current_user.id,
-                reason="Updated via dashboard"
-            )
-            db.session.add(history)
+    # Update editable Total CS Hours per student
+    students = Student.query.join(YearLevel).filter(Student.status=="active").all()
+    for student in students:
+        total_cs_str = request.form.get(f"total_hours_{student.id}")
+        if total_cs_str:
+            try:
+                total_cs = float(total_cs_str)
+            except ValueError:
+                continue
+            student.total_hours_override = total_cs
 
     db.session.commit()
-    flash("Attendance saved successfully.", "success")
+    flash("Attendance and total CS hours saved successfully.", "success")
     return redirect(url_for("attendance_dashboard"))
+
 
 
 @app.route("/export_attendance")

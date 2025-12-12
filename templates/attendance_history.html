@@ -44,9 +44,10 @@
                 <tbody>
                     {% for log in logs %}
                     <tr class="history-row"
-                        data-date="{{ log.changed_at.strftime('%Y-%m-%d') }}"
-                        data-student="{{ log.attendance.student.fname }} {{ log.attendance.student.lname }}"
-                        data-event="{{ log.attendance.event.name }}">
+                    data-date="{{ log.changed_at.strftime('%Y-%m-%d') }}"
+                    data-student="{% if log.attendance and log.attendance.student %}{{ log.attendance.student.fname }} {{ log.attendance.student.lname }}{% else %}Unknown Student{% endif %}"
+                    data-event="{% if log.attendance and log.attendance.event %}{{ log.attendance.event.name }}{% else %}Unknown Event{% endif %}">
+
                         <td class="timestamp-cell">
                             <div class="timestamp">
                                 <div class="date">{{ log.changed_at.strftime("%Y-%m-%d") }}</div>
@@ -54,11 +55,21 @@
                             </div>
                         </td>
                         <td class="student-cell">
-                            {{ log.attendance.student.fname }} {{ log.attendance.student.lname }}
+                            {% if log.attendance and log.attendance.student %}
+                                {{ log.attendance.student.fname }} {{ log.attendance.student.lname }}
+                            {% else %}
+                                Unknown Student
+                            {% endif %}
                         </td>
+
                         <td class="event-cell">
-                            {{ log.attendance.event.name }}
+                            {% if log.attendance and log.attendance.event %}
+                                {{ log.attendance.event.name }}
+                            {% else %}
+                                Unknown Event
+                            {% endif %}
                         </td>
+
                         <td class="hours-cell old-hours">{{ "%.1f"|format(log.old_hours) }}</td>
                         <td class="hours-cell new-hours">{{ "%.1f"|format(log.new_hours) }}</td>
                         <td class="change-cell">
