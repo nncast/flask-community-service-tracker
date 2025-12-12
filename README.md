@@ -5,7 +5,7 @@
 The system supports role-based access for admins and officers, providing a centralized platform for logging, verifying, and reporting community service activities.
 
 ## Requirements
-- Python 3.12 or later (Python 3.12 Recommended)
+- Python 3.12 or later
   [Download Python](https://www.python.org/downloads/)
 - Git (optional, for cloning)  
   [Download Git](https://git-scm.com/downloads)
