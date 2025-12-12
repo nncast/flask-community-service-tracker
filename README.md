@@ -1,5 +1,5 @@
 # CommunityServiceTracker  
-(2024)
+(2025)
 
 **CommunityServiceTracker** is a web-based application built with **Flask** for tracking and managing community service hours for volunteers and organizations.  
 The system supports role-based access for admins and volunteers, providing a centralized platform for logging, verifying, and reporting community service activities.
@@ -46,9 +46,9 @@ The system supports role-based access for admins and volunteers, providing a cen
 ---
 
 **Developer:** 
-  Bernabe Kimberly
-  Janelle Ann Castillo
-  Hazel Sebastian
-  Louisse Glaze Villarente  
+   - Bernabe Kimberly
+   - Janelle Ann Castillo
+   - Hazel Sebastian
+   - Louisse Glaze Villarente  
 
 **GitHub Repository:** [community-service-tracker](https://github.com/nncast/community-service-tracker)
