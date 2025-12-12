@@ -1,5 +1,5 @@
 # CommunityServiceTracker  
-(2025)
+(2025 December 12)
 
 **CommunityServiceTracker** is a web-based application built with **Flask** for tracking and managing community service hours for volunteers and organizations.  
 The system supports role-based access for admins and volunteers, providing a centralized platform for logging, verifying, and reporting community service activities.
