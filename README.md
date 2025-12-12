@@ -6,6 +6,7 @@ The system supports role-based access for admins and officers, providing a centr
 
 ## Requirements
 - Python 3.12 or later
+
   [Download Python](https://www.python.org/downloads/)
 - Git (optional, for cloning)  
   [Download Git](https://git-scm.com/downloads)
