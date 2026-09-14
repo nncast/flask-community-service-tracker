@@ -46,7 +46,7 @@ The system supports role-based access for admins and officers, providing a centr
 ---
 
 **Developers:** 
-   - Bernabe Kimberly
+   - Kimberly Bernabe 
    - Janelle Ann Castillo
    - Hazel Sebastian
    - Louisse Glaze Villarente  
