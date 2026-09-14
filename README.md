@@ -51,4 +51,4 @@ The system supports role-based access for admins and officers, providing a centr
    - Hazel Sebastian
    - Louisse Glaze Villarente  
 
-**GitHub Repository:** [community-service-tracker](https://github.com/nncast/community-service-tracker)
+**GitHub Repository:** [community-service-tracker](https://github.com/nncast/flask-community-service-tracker)
