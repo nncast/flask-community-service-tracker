@@ -16,6 +16,7 @@
   <a href="#quick-start"><strong>Quick Start</strong></a> ·
   <a href="#screenshots">Screenshots</a> ·
   <a href="#roles">Roles</a> ·
+  <a href="AUTHORS.md">Authors</a> ·
   <a href="https://github.com/nncast/flask-community-service-tracker/releases" target="_blank" rel="noopener noreferrer">Release Notes</a>
 </p>
 
@@ -60,11 +61,11 @@ A student's **Total CS Hours** is the sum for the selected academic year or seme
 
 ## Contributing
 
-Contributions are welcome. Fork the repository, work on a branch from `main`, and open a pull request describing what changed and why.
+Contributions are welcome. Fork the repository, work on a branch from `main`, and open a pull request describing what changed and why. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and code style, and [AUTHORS.md](AUTHORS.md) for the people who built it.
 
 ## Security
 
-Please don't report vulnerabilities in public issues. Contact the maintainers privately instead.
+Please don't report vulnerabilities in public issues. Use the repository's **Security → Report a vulnerability** tab instead. See [SECURITY.md](SECURITY.md) for details.
 
 ## Quick Start
 
@@ -87,13 +88,6 @@ Open **http://localhost:5000** and sign in with `admin` / `admin123`. **Change t
 On first run the app creates its SQLite database (`dbcs.db`) and a random session secret key (`secret_key`) in the `instance/` folder. To use your own secret key, set the `SECRET_KEY` environment variable before starting the app.
 
 **First-time setup:** add an **Academic Year** with its semester dates, then **Year Levels**, then **Students**. After that you can create **Events** and record attendance.
-
-## Developers
-
-- Kimberly Bernabe
-- Janelle Ann Castillo
-- Hazel Sebastian
-- Louisse Glaze Villarente
 
 ---
 
