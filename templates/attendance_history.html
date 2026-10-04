@@ -15,9 +15,9 @@
         <div class="history-controls">
             <select id="timeFilter" class="filter-select">
                 <option value="all">All Time</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
+                <option value="today" {% if time_filter == 'today' %}selected{% endif %}>Today</option>
+                <option value="week" {% if time_filter == 'week' %}selected{% endif %}>Last 7 Days</option>
+                <option value="month" {% if time_filter == 'month' %}selected{% endif %}>Last 30 Days</option>
             </select>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search students or events..." class="search-input">
@@ -70,12 +70,12 @@
                             {% endif %}
                         </td>
 
-                        <td class="hours-cell old-hours">{{ "%.1f"|format(log.old_hours) }}</td>
-                        <td class="hours-cell new-hours">{{ "%.1f"|format(log.new_hours) }}</td>
+                        <td class="hours-cell old-hours">{{ "%g"|format(log.old_hours|round(2)) }}</td>
+                        <td class="hours-cell new-hours">{{ "%g"|format(log.new_hours|round(2)) }}</td>
                         <td class="change-cell">
                             {% set change = log.new_hours - log.old_hours %}
                             <span class="change-amount {% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
-                                {{ "%+.1f"|format(change) }}
+                                {{ "%+g"|format(change|round(2)) }}
                             </span>
                         </td>
                         <td class="user-cell">
@@ -88,6 +88,10 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <div class="empty-state" id="noHistoryMatch" style="display:none;">
+            <p>No changes match your filters.</p>
         </div>
 
         {% if not logs %}

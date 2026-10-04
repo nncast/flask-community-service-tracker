@@ -1,27 +1,45 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    
-    // Add visual feedback when checkboxes change
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const row = this.closest('tr');
-            row.style.background = '#f0f9ff';
-            
+    const table = document.querySelector(".event-attendance-table");
+    if (!table) return;
+    const requiredHours = parseFloat(table.dataset.requiredHours) || 0;
+
+    // Same rule as the server: signed in and out = 0 owed, one of them = half, neither = full
+    function updateRow(row) {
+        const [timedIn, timedOut] = Array.from(row.querySelectorAll('input[type="checkbox"]')).map(cb => cb.checked);
+        const badge = row.querySelector(".hours-badge");
+        let hours = requiredHours;
+        let state = "pending";
+        if (timedIn && timedOut) {
+            hours = 0;
+            state = "completed";
+        } else if (timedIn || timedOut) {
+            hours = requiredHours / 2;
+            state = "partial";
+        }
+        badge.textContent = Number(hours.toFixed(2)).toString();
+        badge.className = `hours-badge ${state}`;
+    }
+
+    table.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener("change", function () {
+            const row = this.closest("tr");
+            updateRow(row);
+
+            // Visual feedback
+            row.style.background = "#f0f9ff";
             setTimeout(() => {
-                row.style.background = '';
+                row.style.background = "";
             }, 1000);
         });
     });
-    
+
     // Form submission feedback
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function() {
-            const submitBtn = this.querySelector('.btn-primary');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="btn-icon">⏳</span>Saving...';
-            }
-        });
-    }
+    const form = table.closest("form");
+    form.addEventListener("submit", function () {
+        const submitBtn = this.querySelector(".btn-primary");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="btn-icon">⏳</span>Saving...';
+        }
+    });
 });

@@ -6,7 +6,10 @@
 
 <div class="dashboard-header">
     <h1>{{ event.name }}</h1>
-    <p class="subtitle">{{ event.date.strftime('%B %d, %Y') }} • {{ event.required_hours }} hours required</p>
+    <p class="subtitle">
+        {{ event.date.strftime('%B %d, %Y') }} • {{ "%g"|format(event.required_hours) }} hours required
+        {% if event.semester %}• {{ event.semester.academic_year.year }} {{ event.semester.name }}{% endif %}
+    </p>
 </div>
 
 <div class="content-card">
@@ -14,11 +17,12 @@
         <h3>Student Attendance</h3>
         <span class="student-count">{{ attendances|length }} students</span>
     </div>
-    
+
     <div class="card-content">
+        {% if attendances %}
         <form method="post" action="{{ url_for('save_event_attendance', event_id=event.id) }}">
             <div class="table-container">
-                <table class="event-attendance-table">
+                <table class="event-attendance-table" data-required-hours="{{ event.required_hours }}">
                     <thead>
                         <tr>
                             <th>Student ID</th>
@@ -26,15 +30,15 @@
                             <th>Year Level</th>
                             <th class="text-center">Signed In</th>
                             <th class="text-center">Signed Out</th>
-                            <th class="text-center">Hours</th>
+                            <th class="text-center">Hours Owed</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for att in attendances %}
                         <tr>
                             <td class="student-id">{{ att.student.student_id }}</td>
-                            <td class="student-name">{{ att.student.fname }} {{ att.student.mname }} {{ att.student.lname }}</td>
-                            <td class="year-level">{{ att.student.year_level.level }}-{{ att.student.year_level.section }}</td>
+                            <td class="student-name">{{ att.student.full_name }}</td>
+                            <td class="year-level">{{ att.student.year_level.label }}</td>
                             <td class="text-center">
                                 <label class="checkbox-wrapper">
                                     <input type="checkbox" name="timed_in_{{ att.id }}" value="1" {% if att.timed_in %}checked{% endif %}>
@@ -51,9 +55,9 @@
                                 {% if att.timed_in and att.timed_out %}
                                     <span class="hours-badge completed">0</span>
                                 {% elif att.timed_in or att.timed_out %}
-                                    <span class="hours-badge partial">{{ "%.1f"|format(event.required_hours / 2) }}</span>
+                                    <span class="hours-badge partial">{{ "%g"|format(event.required_hours / 2) }}</span>
                                 {% else %}
-                                    <span class="hours-badge pending">{{ event.required_hours }}</span>
+                                    <span class="hours-badge pending">{{ "%g"|format(event.required_hours) }}</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -61,27 +65,29 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="form-actions">
                 <button type="submit" class="btn-primary">
                     <span class="btn-icon">💾</span>
                     Save Attendance
                 </button>
-                <a href="{{ url_for('attendance_dashboard') }}" class="btn-secondary">Back to Dashboard</a>
+                <a href="{{ url_for('events') }}" class="btn-secondary">Back to Events</a>
+                {% if event.semester %}
+                <a href="{{ url_for('attendance_dashboard', academic_year=event.semester.academic_year_id, semester=event.semester_id) }}" class="btn-secondary">Attendance Dashboard</a>
+                {% endif %}
             </div>
         </form>
+        {% else %}
+        <div class="empty-state">
+            <p>No students are assigned to this event.</p>
+            <p class="subtext">Edit the event's target year levels, or add active students to those year levels.</p>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('events') }}" class="btn-secondary">Back to Events</a>
+        </div>
+        {% endif %}
     </div>
 </div>
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="flashed-messages">
-        {% for message in messages %}
-            <div class="flash-message">{{ message }}</div>
-        {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
 
 <script src="{{ url_for('static', filename='js/event_attendance.js') }}"></script>
 

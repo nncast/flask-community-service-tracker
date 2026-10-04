@@ -99,7 +99,7 @@
             <div class="filter-row">
                 <div class="form-group">
                     <label>Search</label>
-                    <input type="text" name="search" value="{{ search }}" placeholder="Search students...">
+                    <input type="text" name="search" value="{{ search }}" placeholder="Search students..." data-autosubmit>
                 </div>
                 
                 <div class="form-group">
@@ -159,16 +159,16 @@
                         <form method="post" action="{{ url_for('edit_student', student_id=student.id) }}">
                             <td class="student-id">{{ student.id }}</td>
                             <td>
-                                <input type="text" name="student_id" value="{{ student.student_id }}" class="form-input">
+                                <input type="text" name="student_id" value="{{ student.student_id }}" class="form-input student-id-input" required maxlength="8">
                             </td>
                             <td>
-                                <input type="text" name="fname" value="{{ student.fname }}" class="form-input">
+                                <input type="text" name="fname" value="{{ student.fname }}" class="form-input" required>
                             </td>
                             <td>
-                                <input type="text" name="mname" value="{{ student.mname }}" class="form-input">
+                                <input type="text" name="mname" value="{{ student.mname or '' }}" class="form-input">
                             </td>
                             <td>
-                                <input type="text" name="lname" value="{{ student.lname }}" class="form-input">
+                                <input type="text" name="lname" value="{{ student.lname }}" class="form-input" required>
                             </td>
                             <td>
                                 <select name="academic_year" onchange="filterRowYearLevels(this)" class="form-select">
@@ -180,7 +180,7 @@
                                 </select>
                             </td>
                             <td>
-                                <select name="year_level" class="form-select">
+                                <select name="year_level" class="form-select" required>
                                     {% for yl in year_levels %}
                                     <option value="{{ yl.id }}" data-ay="{{ yl.academic_year_id }}" {% if student.year_level_id == yl.id %}selected{% endif %}>
                                         {{ yl.level }} - {{ yl.section }}
@@ -200,12 +200,15 @@
                                     <button type="submit" class="btn-update" title="Update">
                                         <span class="btn-icon">💾</span>
                                     </button>
-                                    <a href="{{ url_for('delete_student', student_id=student.id) }}" class="btn-delete" title="Delete" onclick="return confirm('Delete this student?')">
+                                    <a href="{{ url_for('delete_student', student_id=student.id) }}" class="btn-delete" title="Delete" data-post data-confirm="Delete {{ student.fname }} {{ student.lname }}? Their attendance records are deleted too.">
                                         <span class="btn-icon">🗑️</span>
                                     </a>
-                                    <a href="{{ url_for('promote_student', student_id=student.id) }}" class="btn-promote" title="Promote" onclick="return confirm('Promote this student to next year?')">
+                                    {% if student.status != 'graduate' %}
+                                    <a href="{{ url_for('promote_student', student_id=student.id) }}" class="btn-promote" title="{{ 'Graduate' if student.year_level.level >= 4 else 'Promote' }}" data-post
+                                       data-confirm="{{ 'Mark ' ~ student.fname ~ ' ' ~ student.lname ~ ' as graduated?' if student.year_level.level >= 4 else 'Promote ' ~ student.fname ~ ' ' ~ student.lname ~ ' to the next year level?' }}">
                                         <span class="btn-icon">⬆️</span>
                                     </a>
+                                    {% endif %}
                                 </div>
                             </td>
                         </form>
@@ -226,29 +229,16 @@
     </div>
 </div>
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="flashed-messages">
-        {% for message in messages %}
-            <div class="flash-message">{{ message }}</div>
-        {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
 
 <script>
 
     document.addEventListener("DOMContentLoaded", function() {
     const filterForm = document.querySelector('.filter-form');
-    const searchInput = filterForm.querySelector('input[name="search"]');
     const aySelect = filterForm.querySelector('select[name="academic_year"]');
     const ylSelect = filterForm.querySelector('select[name="year_level"]');
     const statusSelect = filterForm.querySelector('select[name="status"]');
 
-    // Auto-submit on input or change
-    searchInput.addEventListener("input", function() {
-        filterForm.submit();
-    });
+    // Auto-submit on change (the search box uses the shared debounced data-autosubmit)
     aySelect.addEventListener("change", function() {
         filterForm.submit();
     });
@@ -267,11 +257,9 @@ function filterYearLevels() {
 
     for (let option of ylSelect.options) {
         if (option.value === "") continue;
-        if (option.dataset.ay === selectedAY) {
-            option.style.display = "block";
-        } else {
-            option.style.display = "none";
-        }
+        const show = option.dataset.ay === selectedAY;
+        option.hidden = !show;
+        option.disabled = !show;
     }
 
     if (ylSelect.value !== "") {
@@ -289,11 +277,9 @@ function filterYearLevelsTable() {
 
     for (let option of ylSelect.options) {
         if (option.value === "") continue;
-        if (selectedAY === "" || option.dataset.ay === selectedAY) {
-            option.style.display = "block";
-        } else {
-            option.style.display = "none";
-        }
+        const show = selectedAY === "" || option.dataset.ay === selectedAY;
+        option.hidden = !show;
+        option.disabled = !show;
     }
 
     if (ylSelect.value !== "" && selectedAY !== "") {
@@ -311,11 +297,9 @@ function filterRowYearLevels(aySelect) {
 
     for (let option of ylSelect.options) {
         if (option.value === "") continue;
-        if (option.dataset.ay === selectedAY) {
-            option.style.display = "block";
-        } else {
-            option.style.display = "none";
-        }
+        const show = option.dataset.ay === selectedAY;
+        option.hidden = !show;
+        option.disabled = !show;
     }
 
     if (ylSelect.value !== "") {
@@ -366,7 +350,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Edit student rows
-    document.querySelectorAll("[id^='studentIdInputRow']").forEach(inp => {
+    document.querySelectorAll(".student-id-input").forEach(inp => {
         inp.addEventListener("input", () => autoFormatStudentId(inp));
     });
 

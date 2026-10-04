@@ -141,3 +141,8 @@ body {
         padding: 30px 25px;
     }
 }
+.flash-messages.success {
+    background: #ecfdf5;
+    color: #065f46;
+    border-left-color: #10b981;
+}

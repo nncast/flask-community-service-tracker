@@ -3,13 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}LaSalette Academy - Dashboard{% endblock %}</title>
+    <title>{% block title %}Dashboard{% endblock %} - CIT Community Service Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.js"></script>
-
 </head>
 <body>
     <div class="container">
@@ -27,31 +22,31 @@
             </div>
         </div>
     </div>
-    
+
+    {% set attendance_pages = ['attendance_dashboard', 'attendance_history'] %}
+    {% set student_pages = ['students', 'year_levels', 'academic_years'] %}
     <nav>
         {% if session.get('role') in ['admin', 'officer'] %}
             <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
                 <span class="nav-icon">📊</span>
                 <span class="nav-text">Dashboard</span>
             </a>
-        {% endif %}
 
-        {% if session.get('role') in ['admin', 'officer'] %}
-            <a href="{{ url_for('events') }}" class="{% if request.endpoint == 'events' %}active{% endif %}">
+            <a href="{{ url_for('events') }}" class="{% if request.endpoint in ['events', 'edit_event', 'event_attendance'] %}active{% endif %}">
                 <span class="nav-icon">📅</span>
                 <span class="nav-text">Events</span>
             </a>
 
-            <div class="dropdown">
-                <a href="javascript:void(0)" class="{% if request.endpoint in ['attendance_dashboard', 'attendance_history'] %}active{% endif %}">
+            <div class="dropdown {% if request.endpoint in attendance_pages %}open{% endif %}">
+                <a href="javascript:void(0)" class="{% if request.endpoint in attendance_pages %}active{% endif %}">
                     <span class="nav-icon">📝</span>
                     <span class="nav-text">Attendance</span>
                 </a>
                 <div class="dropdown-content">
-                    <a href="{{ url_for('attendance_dashboard') }}">
+                    <a href="{{ url_for('attendance_dashboard') }}" class="{% if request.endpoint == 'attendance_dashboard' %}active{% endif %}">
                         <span class="nav-text">- Attendance Dashboard</span>
                     </a>
-                    <a href="{{ url_for('attendance_history') }}">
+                    <a href="{{ url_for('attendance_history') }}" class="{% if request.endpoint == 'attendance_history' %}active{% endif %}">
                         <span class="nav-text">- Attendance History</span>
                     </a>
                 </div>
@@ -59,19 +54,19 @@
         {% endif %}
 
         {% if session.get('role') == 'admin' %}
-            <div class="dropdown">
-                <a href="javascript:void(0)" class="{% if request.endpoint in ['students', 'year_levels', 'academic_years'] %}active{% endif %}">
+            <div class="dropdown {% if request.endpoint in student_pages %}open{% endif %}">
+                <a href="javascript:void(0)" class="{% if request.endpoint in student_pages %}active{% endif %}">
                     <span class="nav-icon">🎓</span>
                     <span class="nav-text">Students</span>
                 </a>
                 <div class="dropdown-content">
-                    <a href="{{ url_for('students') }}">
+                    <a href="{{ url_for('students') }}" class="{% if request.endpoint == 'students' %}active{% endif %}">
                         <span class="nav-text">- Students</span>
                     </a>
-                    <a href="{{ url_for('year_levels') }}">
+                    <a href="{{ url_for('year_levels') }}" class="{% if request.endpoint == 'year_levels' %}active{% endif %}">
                         <span class="nav-text">- Year Levels</span>
                     </a>
-                    <a href="{{ url_for('academic_years') }}">
+                    <a href="{{ url_for('academic_years') }}" class="{% if request.endpoint == 'academic_years' %}active{% endif %}">
                         <span class="nav-text">- Academic Years</span>
                     </a>
                 </div>
@@ -88,12 +83,12 @@
             <span class="nav-text">Logout</span>
         </a>
     </nav>
-    
+
     <div class="user-info">
         <div class="user-avatar">👤</div>
         <div class="user-details">
             <div class="user-name">{{ session.get('username') }}</div>
-            <div class="user-role">{{ session.get('role') }} Role</div>
+            <div class="user-role">{{ session.get('role')|capitalize }} Role</div>
         </div>
     </div>
 </aside>
@@ -105,14 +100,15 @@
                 {% if messages %}
                     <div class="flash-messages">
                         {% for category, message in messages %}
-                            <div class="flash-message {{ category }}">
-                                {{ message }}
+                            <div class="flash-message {{ category }}" role="alert">
+                                <span>{{ message }}</span>
+                                <button type="button" class="flash-close" aria-label="Dismiss">&times;</button>
                             </div>
                         {% endfor %}
                     </div>
                 {% endif %}
             {% endwith %}
-            
+
             {% block content %}{% endblock %}
         </main>
     </div>
@@ -122,37 +118,77 @@
         document.querySelectorAll('.dropdown > a').forEach(item => {
             item.addEventListener('click', function() {
                 const parent = this.parentElement;
-                const isOpen = parent.classList.contains('open');
-                
+
                 // Close all other dropdowns
                 document.querySelectorAll('.dropdown.open').forEach(dropdown => {
                     if (dropdown !== parent) {
                         dropdown.classList.remove('open');
                     }
                 });
-                
+
                 // Toggle current dropdown
                 parent.classList.toggle('open');
             });
         });
 
-        // Close dropdowns when clicking outside
+        // Close dropdowns when clicking outside the sidebar menus
+        // (closest() so clicks on the icon/text inside the toggle don't count as "outside")
         document.addEventListener('click', function(event) {
-            if (!event.target.matches('.dropdown > a')) {
+            if (!event.target.closest('.dropdown')) {
                 document.querySelectorAll('.dropdown.open').forEach(dropdown => {
-                    dropdown.classList.remove('open');
+                    if (!dropdown.querySelector('.dropdown-content a.active')) {
+                        dropdown.classList.remove('open');
+                    }
                 });
             }
         });
 
-        // Auto-hide flash messages
+        // Links that change data (delete, promote) are sent as POST requests.
+        // <a href="..." data-post data-confirm="Are you sure?">
+        document.addEventListener('click', function(event) {
+            const link = event.target.closest('a[data-post]');
+            if (!link) return;
+            event.preventDefault();
+            if (link.dataset.confirm && !confirm(link.dataset.confirm)) return;
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = link.href;
+            document.body.appendChild(form);
+            form.submit();
+        });
+
+        // Flash messages: dismiss button + auto-hide (errors stay until dismissed)
         document.addEventListener('DOMContentLoaded', function() {
-            const flashMessages = document.querySelectorAll('.flash-message');
-            flashMessages.forEach(message => {
-                setTimeout(() => {
-                    message.style.opacity = '0';
-                    setTimeout(() => message.remove(), 300);
-                }, 5000);
+            const hide = message => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 300);
+            };
+            document.querySelectorAll('.flash-message').forEach(message => {
+                message.querySelector('.flash-close').addEventListener('click', () => hide(message));
+                if (!message.classList.contains('error')) {
+                    setTimeout(() => hide(message), 5000);
+                }
+            });
+        });
+
+        // Debounced auto-submit for filter search boxes that keeps the cursor in place
+        // after the page reloads. <input data-autosubmit> inside a GET form.
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[data-autosubmit]').forEach(input => {
+                let timer = null;
+                input.addEventListener('input', () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        try { sessionStorage.setItem('refocus', input.name); } catch (e) {}
+                        input.form.submit();
+                    }, 400);
+                });
+                let refocus = null;
+                try { refocus = sessionStorage.getItem('refocus'); sessionStorage.removeItem('refocus'); } catch (e) {}
+                if (refocus === input.name) {
+                    input.focus();
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
             });
         });
     </script>

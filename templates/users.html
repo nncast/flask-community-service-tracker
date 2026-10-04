@@ -19,12 +19,12 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" required placeholder="Enter username">
+                    <input type="text" name="username" required maxlength="50" placeholder="Enter username" autocomplete="off">
                 </div>
                 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="text" name="password" required placeholder="Enter password">
+                    <input type="password" name="password" required placeholder="Enter password" autocomplete="new-password">
                 </div>
             </div>
 
@@ -67,7 +67,7 @@
     <form id="filterForm" method="get" action="{{ url_for('users') }}" class="filter-form" style="display:flex; gap:16px; align-items:flex-end; width:100%;">
         <div class="form-group" style="flex:1;">
             <label>Search Username</label>
-            <input type="text" name="search" value="{{ search }}" id="searchInput" placeholder="Search username...">
+            <input type="text" name="search" value="{{ search }}" id="searchInput" placeholder="Search username..." data-autosubmit>
         </div>
         <div class="form-group" style="width:150px;">
             <label>Role</label>
@@ -108,8 +108,8 @@
                     <tr>
                         <form method="post" action="{{ url_for('edit_user', user_id=user.id) }}">
                             <td class="user-id">{{ user.id }}</td>
-                            <td><input type="text" name="username" value="{{ user.username }}" class="form-input"></td>
-                            <td><input type="text" name="password" placeholder="Enter new password (leave blank to keep)" class="form-input"></td>
+                            <td><input type="text" name="username" value="{{ user.username }}" class="form-input" required maxlength="50"></td>
+                            <td><input type="password" name="password" placeholder="New password (blank = keep)" class="form-input" autocomplete="new-password"></td>
                             <td>
                                 <select name="role" class="form-select">
                                     <option value="admin" {% if user.role=='admin' %}selected{% endif %}>Admin</option>
@@ -128,9 +128,11 @@
                                     <button type="submit" class="btn-update" title="Update User">
                                         <span class="btn-icon">💾</span>
                                     </button>
-                                    <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn-delete" title="Delete User" onclick="return confirm('Are you sure you want to delete this user?')">
+                                    {% if user.id != session.get('user_id') %}
+                                    <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn-delete" title="Delete User" data-post data-confirm="Are you sure you want to delete {{ user.username }}?">
                                         <span class="btn-icon">🗑️</span>
                                     </a>
+                                    {% endif %}
                                 </div>
                             </td>
                         </form>
@@ -151,16 +153,6 @@
     </div>
 </div>
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="flashed-messages">
-        {% for message in messages %}
-            <div class="flash-message">{{ message }}</div>
-        {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
 <!-- Toggle and Filter Scripts -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -173,11 +165,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Auto-submit filters
     const filterForm = document.getElementById("filterForm");
-    const searchInput = document.getElementById("searchInput");
     const roleSelect = document.getElementById("roleSelect");
     const statusSelect = document.getElementById("statusSelect");
 
-    searchInput.addEventListener("keyup", function() { filterForm.submit(); });
     roleSelect.addEventListener("change", function() { filterForm.submit(); });
     statusSelect.addEventListener("change", function() { filterForm.submit(); });
 });

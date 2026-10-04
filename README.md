@@ -1,5 +1,5 @@
-# CommunityServiceTracker v1.2
-(2025 December 12)
+# CommunityServiceTracker v0.1.3
+(2026 October 4)
 
 **CommunityServiceTracker** is a web-based application built with **Flask** for tracking and managing community service hours for students.  
 The system supports role-based access for admins and officers, providing a centralized platform for logging, verifying, and reporting community service activities.
@@ -42,6 +42,17 @@ The system supports role-based access for admins and officers, providing a centr
    - **Password:** `admin123`
 
 **Important:** Change default passwords after first login!
+
+## Roles
+- **Admin:** full access, including Students, Year Levels, Academic Years, and Users.
+- **Officer:** Dashboard, Events, and Attendance only.
+
+## Configuration
+- The SQLite database (`dbcs.db`) and a randomly generated session secret key (`secret_key`) are created in the `instance/` folder on first run.
+- To use your own secret key, set the `SECRET_KEY` environment variable before starting the app.
+
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md) or the [Releases](https://github.com/nncast/flask-community-service-tracker/releases) page.
 
 ---
 

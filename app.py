@@ -1,3 +1,5 @@
+import os
+import secrets
 from flask import Flask
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
@@ -5,11 +7,27 @@ from models import db, User, AcademicYear, Semester, YearLevel, Student, Event, 
 
 # ----------------- 1. Create app -----------------
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+
+
+def load_secret_key():
+    """Use SECRET_KEY from the environment, otherwise a random key saved in the
+    instance folder so sessions survive restarts without a hardcoded secret."""
+    if os.environ.get("SECRET_KEY"):
+        return os.environ["SECRET_KEY"]
+    os.makedirs(app.instance_path, exist_ok=True)
+    key_file = os.path.join(app.instance_path, "secret_key")
+    if not os.path.exists(key_file):
+        with open(key_file, "w") as f:
+            f.write(secrets.token_hex(32))
+    with open(key_file) as f:
+        return f.read().strip()
+
 
 # ----------------- 2. Configure app -----------------
+app.secret_key = load_secret_key()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dbcs.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'   # blocks cross-site form posts from reusing the session
 
 # ----------------- 3. Initialize extensions -----------------
 db.init_app(app)

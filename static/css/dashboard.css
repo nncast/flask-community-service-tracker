@@ -214,13 +214,13 @@ body, html {
 .dropdown-content {
     display: none;
     flex-direction: column;
-    background: white(23, 15, 60, 0.98);
+    background: rgba(23, 15, 60, 0.98);
     backdrop-filter: blur(20px);
     border-radius: 10px;
     margin: 8px 0;
     padding: 8px 0;
-    border: 1px solid white(255, 255, 255, 0.15);
-    box-shadow: 0 12px 32px white(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     position: relative;
     overflow: hidden;
 }
@@ -269,14 +269,14 @@ body, html {
 }
 
 .dropdown.open {
-    background: white(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
     margin: -4px -8px;
     padding: 4px 8px;
 }
 
 .dropdown.open > a {
-    background: white(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Keyframes */
@@ -764,3 +764,70 @@ body, html {
     }
 }
 
+
+/* Flash messages (rendered once by base.html, colored by category) */
+.flash-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.flash-messages .flash-message {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #3b82f6;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: opacity 0.3s ease;
+}
+
+.flash-messages .flash-message.success {
+    border-color: #a7f3d0;
+    border-left-color: #10b981;
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.flash-messages .flash-message.error {
+    border-color: #fecaca;
+    border-left-color: #ef4444;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.flash-messages .flash-message.warning {
+    border-color: #fde68a;
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.flash-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.3em;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.6;
+    padding: 0 2px;
+}
+
+.flash-close:hover {
+    opacity: 1;
+}
+
+/* Let wide content (e.g. the attendance table) scroll inside its card
+   instead of stretching the whole page sideways */
+.main-content {
+    min-width: 0;
+}

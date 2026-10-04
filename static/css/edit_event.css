@@ -220,3 +220,17 @@
         padding: 8px;
     }
 }
+/* Hints under form fields */
+.form-hint {
+    margin: 4px 0 0;
+    font-size: 0.85em;
+    color: #64748b;
+}
+
+#yearLevelHint {
+    color: #92400e;
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    padding: 8px 12px;
+    border-radius: 6px;
+}

@@ -41,7 +41,7 @@
             </div>
             <div class="metric-content">
                 <h3>Upcoming Events</h3>
-                <p class="metric-value">{{ upcoming_events|length }}</p>
+                <p class="metric-value">{{ upcoming_count }}</p>
                 <span class="metric-label">Scheduled</span>
             </div>
         </div>
@@ -52,7 +52,7 @@
             </div>
             <div class="metric-content">
                 <h3>Recent Changes</h3>
-                <p class="metric-value">{{ recent_changes|length }}</p>
+                <p class="metric-value">{{ recent_count }}</p>
                 <span class="metric-label">This week</span>
             </div>
         </div>
@@ -123,9 +123,9 @@
 
                     <div class="hours-change">
                         {% if change.attendance %}
-                            <span class="old-hours">{{ change.old_hours }}</span>
+                            <span class="old-hours">{{ "%g"|format(change.old_hours) }}h</span>
                             <span class="arrow">→</span>
-                            <span class="new-hours">{{ change.new_hours }}</span>
+                            <span class="new-hours">{{ "%g"|format(change.new_hours) }}h</span>
                         {% else %}
                             <span>-</span>
                         {% endif %}
@@ -133,7 +133,7 @@
                 </div>
 
                 <div class="change-meta">
-                    by {{ username }}
+                    by {{ change.user.username if change.user else 'Unknown user' }}
                 </div>
 
             </div>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CIT CST</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
@@ -14,28 +15,26 @@
                 </span>
                 <div class="logo-text">CIT Community Service Tracker</div>
             </div>
-            
+
             <h1>Welcome Back</h1>
             <p class="subtitle">Sign in to your account</p>
 
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            <div class="flash-messages">
-                {% for message in messages %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="flash-messages {{ category }}" role="alert">
                 <p>{{ message }}</p>
-                {% endfor %}
             </div>
-            {% endif %}
+            {% endfor %}
             {% endwith %}
 
             <form method="post">
                 <div class="form-row">
-                    <label>Username</label>
-                    <input type="text" name="username" placeholder="Enter your username" required>
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" autocomplete="username" required autofocus>
                 </div>
                 <div class="form-row">
-                    <label>Password</label>
-                    <input type="password" name="password" placeholder="Enter your password" required>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
                 </div>
                 <button class="btn-login" type="submit">Sign In</button>
             </form>

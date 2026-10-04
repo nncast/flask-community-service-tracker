@@ -4,6 +4,11 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/academic_years.css') }}">
 
+<div class="dashboard-header">
+    <h1>Academic Years</h1>
+    <p class="subtitle">Manage academic years and their semester dates</p>
+</div>
+
 <div id="academic-year-section">
 
     <!-- Add Academic Year Card -->
@@ -13,7 +18,8 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="year-input">Year:</label>
-                    <input type="text" name="year" id="year-input" required>
+                    <input type="text" name="year" id="year-input" required placeholder="e.g. 2025-2026"
+                           pattern="\d{4}-\d{4}" title="Use the format YYYY-YYYY, e.g. 2025-2026">
                 </div>
                 <div class="form-group">
                     <label for="status-select">Status:</label>
@@ -30,11 +36,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Start:</label>
-                        <input type="date" name="start1" required value="2025-08-01">
+                        <input type="date" name="start1" id="start1" required>
                     </div>
                     <div class="form-group">
                         <label>End:</label>
-                        <input type="date" name="end1" required value="2025-12-25">
+                        <input type="date" name="end1" id="end1" required>
                     </div>
                 </div>
             </div>
@@ -45,11 +51,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Start:</label>
-                        <input type="date" name="start1" required value="2026-01-01">
+                        <input type="date" name="start2" id="start2" required>
                     </div>
                     <div class="form-group">
                         <label>End:</label>
-                        <input type="date" name="end1" required value="2026-05-30">
+                        <input type="date" name="end2" id="end2" required>
                     </div>
                 </div>
             </div>
@@ -83,7 +89,7 @@
                         <form method="post" action="{{ url_for('edit_academic_year', ay_id=ay.id) }}">
                             <td>{{ ay.id }}</td>
                             <td>
-                                <input type="text" name="year" value="{{ ay.year }}" class="input-year">
+                                <input type="text" name="year" value="{{ ay.year }}" class="input-year" required pattern="\d{4}-\d{4}" title="Use the format YYYY-YYYY, e.g. 2025-2026">
                             </td>
                             <td>
                                 <select name="status" class="select-status">
@@ -92,16 +98,16 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="date" name="start1" value="{{ ay.semesters[0].start_date if ay.semesters|length >=1 and ay.semesters[0] else '' }}" class="input-semester-start1">
+                                <input type="date" name="start1" value="{{ ay.semesters[0].start_date or '' if ay.semesters|length >= 1 else '' }}" class="input-semester-start1">
                             </td>
                             <td>
-                                <input type="date" name="end1" value="{{ ay.semesters[0].end_date if ay.semesters|length >=1 and ay.semesters[0] else '' }}" class="input-semester-end1">
+                                <input type="date" name="end1" value="{{ ay.semesters[0].end_date or '' if ay.semesters|length >= 1 else '' }}" class="input-semester-end1">
                             </td>
                             <td>
-                                <input type="date" name="start2" value="{{ ay.semesters[1].start_date if ay.semesters|length >=2 and ay.semesters[1] else '' }}" class="input-semester-start2">
+                                <input type="date" name="start2" value="{{ ay.semesters[1].start_date or '' if ay.semesters|length >= 2 else '' }}" class="input-semester-start2">
                             </td>
                             <td>
-                                <input type="date" name="end2" value="{{ ay.semesters[1].end_date if ay.semesters|length >=2 and ay.semesters[1] else '' }}" class="input-semester-end2">
+                                <input type="date" name="end2" value="{{ ay.semesters[1].end_date or '' if ay.semesters|length >= 2 else '' }}" class="input-semester-end2">
                             </td>
                             <td class="actions-cell">
                                 <div class="action-buttons">
@@ -112,7 +118,8 @@
                                     <a href="{{ url_for('delete_academic_year', ay_id=ay.id) }}"
                                     class="btn-delete"
                                     title="Delete"
-                                    onclick="return confirm('Delete this academic year?')">
+                                    data-post
+                                    data-confirm="Delete {{ ay.year }}? This also deletes its semesters, year levels, students and their attendance records.">
                                         <span class="btn-icon">🗑️</span>
                                     </a>
                                 </div>
@@ -125,16 +132,19 @@
         </div>
     </div>
 
-    <!-- Flashed messages -->
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="flashed-messages">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-
 </div>
+
+<script>
+// Suggest semester dates from the typed academic year (Aug-Dec, Jan-May), only filling empty fields
+document.getElementById("year-input").addEventListener("change", function () {
+    const match = /^(\d{4})-(\d{4})$/.exec(this.value.trim());
+    if (!match) return;
+    const [start, end] = [match[1], match[2]];
+    const defaults = { start1: `${start}-08-01`, end1: `${start}-12-20`, start2: `${end}-01-05`, end2: `${end}-05-30` };
+    for (const [id, value] of Object.entries(defaults)) {
+        const input = document.getElementById(id);
+        if (!input.value) input.value = value;
+    }
+});
+</script>
 {% endblock %}

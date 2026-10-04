@@ -14,10 +14,10 @@
         <h3>Event Details</h3>
     </div>
     <div class="card-content">
-        <form method="post" action="{{ url_for('edit_event', event_id=event.id) }}" class="event-form">
+        <form method="post" action="{{ url_for('edit_event', event_id=event.id) }}" class="event-form" data-targets="{{ event.target_years }}">
             <div class="form-group">
                 <label>Event Name</label>
-                <input type="text" name="name" value="{{ event.name }}" required placeholder="Enter event name">
+                <input type="text" name="name" value="{{ event.name }}" required maxlength="255" placeholder="Enter event name">
             </div>
 
             <div class="form-row">
@@ -33,10 +33,12 @@
 
             <div class="form-group">
                 <label>Target Year Levels</label>
+                <p class="form-hint" id="yearLevelHint" style="display:none;">
+                    No academic year covers this date. Add the academic year and its semester dates first.
+                </p>
                 <div class="checkbox-group" id="yearLevelContainer">
                     <label class="checkbox-label all-checkbox">
-                        <input type="checkbox" name="target_years" value="all" id="allYearsCheckbox" onclick="toggleYearSelection(this)"
-                            {% if event.target_years == 'all' %}checked{% endif %}>
+                        <input type="checkbox" name="target_years" value="all">
                         <span class="checkmark"></span>
                         All Year Levels
                     </label>
@@ -50,7 +52,11 @@
                         {% endfor %}
                     </div>
                 </div>
-
+                <p class="form-hint">
+                    Students in newly selected year levels are added to this event. Students in removed year levels
+                    are dropped unless they already have attendance recorded. Changing the required hours recalculates
+                    everyone's hours.
+                </p>
             </div>
 
             <div class="form-actions">
@@ -67,103 +73,7 @@
     </div>
 </div>
 
-<script>
-const academicYears = [
-    {% for ay in academic_years %}
-    {
-        id: {{ ay.id }},
-        year: "{{ ay.year }}",
-        semesters: [
-            {% for sem in ay.semesters %}
-            { start_date: "{{ sem.start_date }}", end_date: "{{ sem.end_date }}" }{% if not loop.last %},{% endif %}
-            {% endfor %}
-        ]
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-];
-
-const dateInput = document.querySelector('input[name="date"]');
-const yearLevelContainer = document.getElementById('yearLevelContainer');
-const yearLevelLabels = document.querySelectorAll('#yearLevelGrid .checkbox-label');
-const allCheckbox = document.getElementById('allYearsCheckbox');
-
-// Parse event.target_years into an array
-let targetYears = [];
-{% if event.target_years != 'all' %}
-targetYears = "{{ event.target_years }}".split(',').map(s => s.trim());
-{% endif %}
-
-function updateYearLevels() {
-    if (!dateInput.value) {
-        yearLevelContainer.style.display = 'none';
-        return;
-    }
-
-    const selectedDate = new Date(dateInput.value + 'T00:00:00');
-    yearLevelContainer.style.display = 'block';
-
-    const matchingAY = academicYears.find(ay => {
-        if (!ay.semesters.length) return false;
-        const start = new Date(ay.semesters[0].start_date + 'T00:00:00');
-        const end = new Date(ay.semesters[ay.semesters.length - 1].end_date + 'T00:00:00');
-        return selectedDate >= start && selectedDate <= end;
-    });
-
-    let allChecked = true;
-
-    yearLevelLabels.forEach(label => {
-        const checkbox = label.querySelector('input');
-        const academicYearId = parseInt(label.dataset.academicYear, 10);
-
-        if (matchingAY && academicYearId === parseInt(matchingAY.id, 10)) {
-            label.style.display = 'block';
-            checkbox.disabled = false;
-
-            // Pre-check based on targetYears
-            if (targetYears.length) {
-                checkbox.checked = targetYears.includes(checkbox.value);
-            } else if ("{{ event.target_years }}" === 'all') {
-                checkbox.checked = true;
-            } else {
-                checkbox.checked = false;
-                allChecked = false;
-            }
-
-            if (!checkbox.checked) allChecked = false;
-        } else {
-            label.style.display = 'none';
-            checkbox.checked = false;
-            checkbox.disabled = true;
-            allChecked = false;
-        }
-    });
-
-    allCheckbox.checked = allChecked;
-    allCheckbox.disabled = !matchingAY;
-}
-
-// Initialize on load
-updateYearLevels();
-dateInput.addEventListener('change', updateYearLevels);
-
-function toggleYearSelection(allCb) {
-    yearLevelLabels.forEach(label => {
-        const checkbox = label.querySelector('input');
-        if (!checkbox.disabled) checkbox.checked = allCb.checked;
-    });
-}
-
-yearLevelLabels.forEach(label => {
-    const cb = label.querySelector('input');
-    cb.addEventListener('change', () => {
-        const visibleCheckboxes = Array.from(yearLevelLabels)
-            .filter(l => l.style.display !== 'none')
-            .map(l => l.querySelector('input'));
-        allCheckbox.checked = visibleCheckboxes.length > 0 && visibleCheckboxes.every(c => c.checked);
-    });
-});
-</script>
-
-
+<script id="academicYearsData" type="application/json">{{ ay_ranges|tojson }}</script>
+<script src="{{ url_for('static', filename='js/event_form.js') }}"></script>
 
 {% endblock %}

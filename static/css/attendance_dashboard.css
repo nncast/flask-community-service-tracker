@@ -484,3 +484,73 @@
     background: #fef3c7 !important;
     border-color: #f59e0b !important;
 }
+/* ---- Layout fixes ---- */
+.card-header .filters {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Size columns to their content and scroll sideways inside the card when there are many events */
+.attendance-table {
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+}
+
+/* Only Student ID and Name stay pinned while scrolling, each at its own offset
+   (all pinned at left: 0 they used to pile on top of each other) */
+.attendance-table .sticky-col {
+    position: sticky;
+    background: #fff;
+    z-index: 3;
+}
+
+.attendance-table th.sticky-col {
+    background: #f8fafc;
+    z-index: 4;
+}
+
+.attendance-table .sticky-col.id-col {
+    left: 0;
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+}
+
+.attendance-table .sticky-col.name-col {
+    left: 110px;
+    min-width: 220px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.attendance-table .total-col {
+    background: #f0f9ff;
+    font-weight: 700;
+    color: #0369a1;
+    white-space: nowrap;
+}
+
+.attendance-table .hours-value {
+    display: inline-block;
+    min-width: 36px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.attendance-table td.not-applicable {
+    color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.no-match {
+    text-align: center;
+    color: #64748b;
+    padding: 20px;
+}
+
+.action-bar .btn-primary:disabled,
+.action-bar .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
