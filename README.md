@@ -5,7 +5,7 @@
 <h1 align="center">CIT Community Service Tracker</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.3-8038C5?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/version-0.2.0-8038C5?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/status-stable-2772BD?style=flat-square" alt="status">
   <img src="https://img.shields.io/badge/python-3.12%2B-2B9580?style=flat-square&logo=python&logoColor=white" alt="python">
   <img src="https://img.shields.io/badge/Flask-2.3-E59A18?style=flat-square&logo=flask&logoColor=white" alt="Flask">
@@ -22,7 +22,22 @@
 
 The CIT Community Service Tracker is a Flask web app for the University of La Salette College of Information Technology. Officers record which students signed in and out of community service events, and the app tracks the service hours each student still owes per semester.
 
-> **Current version: v0.1.3** — Server-Side Access Control, Safe Attendance Saving, Live Hour Totals, Event/Attendance Sync & Cleaner UI. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for the full version history.
+> **Current version: v0.2.0** — Redesigned interface (calmer sidebar, aligned attendance table with pinned headers, consistent pages, phone layout) and uv for setup. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for the full version history.
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" width="49%" alt="Dashboard: students, events, upcoming events and recent attendance changes">
+  <img src="docs/screenshots/attendance-dashboard.png" width="49%" alt="Attendance Dashboard: every student and event for a semester, with live hour totals">
+</p>
+<p align="center">
+  <img src="docs/screenshots/events.png" width="49%" alt="Events: create events for specific year levels, grouped by academic year and semester">
+  <img src="docs/screenshots/event-attendance.png" width="49%" alt="Event Attendance: sign students in and out; hours owed update as you tick">
+</p>
+<p align="center">
+  <img src="docs/screenshots/students.png" width="49%" alt="Students: records per year level, with promotion to the next year">
+  <img src="docs/screenshots/attendance-history.png" width="49%" alt="Attendance History: every hours change, who made it and why">
+</p>
+
+<p align="center"><sub>Dashboard · Attendance Dashboard · Events · Event Attendance · Students · Attendance History</sub></p>
 
 ## How hours work
 
