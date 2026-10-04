@@ -333,3 +333,20 @@
         padding: 10px 12px;
     }
 }
+/* Keep the inline edit dropdowns readable instead of squeezing them to "2026-2" / "Acti";
+   the table scrolls sideways inside its container when the screen is narrow */
+.students-table select[name="academic_year"] {
+    min-width: 125px;
+}
+
+.students-table select[name="year_level"] {
+    min-width: 90px;
+}
+
+.students-table select[name="status"] {
+    min-width: 115px;
+}
+
+.students-table .action-buttons {
+    flex-wrap: nowrap;
+}
