@@ -1,20 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Users Management{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/users.css') }}">
-
 <div class="dashboard-header">
     <h1>User Management</h1>
     <p class="subtitle">Manage system users and permissions</p>
 </div>
 
 <!-- Add New User Card (Toggleable) -->
-<div class="content-card">
-    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+<div class="content-card collapsible">
+    <div class="card-header">
         <h3>Add New User</h3>
-        <button type="button" id="toggleAddUser" class="btn-secondary">Add User</button>
+        <button type="button" class="btn-secondary" data-toggle-target="addUserForm">{{ icon('plus', 16) }} Add User</button>
     </div>
-    <div class="card-content" id="addUserForm" style="display:none;">
+    <div class="card-content" id="addUserForm" hidden>
         <form method="post" action="{{ url_for('add_user') }}" class="user-form">
             <div class="form-row">
                 <div class="form-group">
@@ -47,7 +45,7 @@
             </div>
 
             <button type="submit" class="btn-primary">
-
+                <span class="btn-icon">{{ icon('plus', 16) }}</span>
                 Add User
             </button>
         </form>
@@ -63,31 +61,30 @@
     <div class="card-content">
 
         <!-- Filters -->
-<div class="filter-row" style="margin-bottom:20px; display:flex; gap:16px; align-items:flex-end;">
-    <form id="filterForm" method="get" action="{{ url_for('users') }}" class="filter-form" style="display:flex; gap:16px; align-items:flex-end; width:100%;">
-        <div class="form-group" style="flex:1;">
-            <label>Search Username</label>
-            <input type="text" name="search" value="{{ search }}" id="searchInput" placeholder="Search username..." data-autosubmit>
-        </div>
-        <div class="form-group" style="width:150px;">
-            <label>Role</label>
-            <select name="role" id="roleSelect">
-                <option value="">All Roles</option>
-                <option value="admin" {% if role_filter=='admin' %}selected{% endif %}>Admin</option>
-                <option value="officer" {% if role_filter=='officer' %}selected{% endif %}>Officer</option>
-            </select>
-        </div>
-        <div class="form-group" style="width:150px;">
-            <label>Status</label>
-            <select name="status" id="statusSelect">
-                <option value="">All Status</option>
-                <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
-                <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>Inactive</option>
-            </select>
-        </div>
-    </form>
-</div>
-
+        <form id="filterForm" method="get" action="{{ url_for('users') }}" class="filter-form">
+            <div class="filter-row">
+                <div class="form-group">
+                    <label>Search</label>
+                    <input type="search" name="search" value="{{ search }}" id="searchInput" placeholder="Username" data-autosubmit>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role" id="roleSelect">
+                        <option value="">All Roles</option>
+                        <option value="admin" {% if role_filter=='admin' %}selected{% endif %}>Admin</option>
+                        <option value="officer" {% if role_filter=='officer' %}selected{% endif %}>Officer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" id="statusSelect">
+                        <option value="">All Status</option>
+                        <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </form>
 
         <!-- Users Table -->
         <div class="table-container">
@@ -156,13 +153,6 @@
 <!-- Toggle and Filter Scripts -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Add User toggle
-    const toggleButton = document.getElementById("toggleAddUser");
-    const addFormDiv = document.getElementById("addUserForm");
-    toggleButton.addEventListener("click", function() {
-        addFormDiv.style.display = (addFormDiv.style.display === "none" || addFormDiv.style.display === "") ? "block" : "none";
-    });
-
     // Auto-submit filters
     const filterForm = document.getElementById("filterForm");
     const roleSelect = document.getElementById("roleSelect");
@@ -172,26 +162,5 @@ document.addEventListener("DOMContentLoaded", function() {
     statusSelect.addEventListener("change", function() { filterForm.submit(); });
 });
 </script>
-
-<!-- Toggle switch CSS -->
-<style>
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc; transition: 0.3s; border-radius: 24px;
-}
-.slider:before {
-  position: absolute; content: ""; height: 18px; width: 18px;
-  left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;
-}
-input:checked + .slider { background-color: #4CAF50; }
-input:checked + .slider:before { transform: translateX(26px); }
-</style>
 
 {% endblock %}

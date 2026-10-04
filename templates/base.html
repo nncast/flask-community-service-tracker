@@ -4,97 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard{% endblock %} - CIT Community Service Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='imgs/cit_logo_small.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-<aside class="sidebar">
-    <div class="sidebar-header">
-        <div class="logo">
-            <div class="logo-icon">
-                <img src="{{ url_for('static', filename='imgs/cit_logo.png') }}" alt="Logo">
-            </div>
-            <div class="logo-text">
-                <div class="logo-main">CIT Community Service Tracker</div>
-                <div class="logo-subtitle">University of La Salette</div>
-                <div class="logo-department">College of Information Technology</div>
-            </div>
-        </div>
-    </div>
-
     {% set attendance_pages = ['attendance_dashboard', 'attendance_history'] %}
     {% set student_pages = ['students', 'year_levels', 'academic_years'] %}
-    <nav>
-        {% if session.get('role') in ['admin', 'officer'] %}
-            <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
-                <span class="nav-icon">{{ icon('dashboard', 20) }}</span>
-                <span class="nav-text">Dashboard</span>
+    {% set event_pages = ['events', 'edit_event', 'event_attendance'] %}
+
+    <!-- Small screens: top bar with a menu button that opens the sidebar -->
+    <header class="topbar">
+        <button type="button" class="topbar-menu" id="sidebarToggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+            {{ icon('menu', 22) }}
+        </button>
+        <span class="topbar-title">CIT Community Service Tracker</span>
+    </header>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="layout">
+        <aside class="sidebar" id="sidebar">
+            <a class="brand" href="{{ url_for('dashboard') }}">
+                <img class="brand-logo" src="{{ url_for('static', filename='imgs/cit_logo_small.png') }}" alt="College of Information Technology seal">
+                <span class="brand-text">
+                    <span class="brand-name">CIT Community Service Tracker</span>
+                    <span class="brand-org">University of La Salette</span>
+                    <span class="brand-org">College of Information Technology</span>
+                </span>
             </a>
 
-            <a href="{{ url_for('events') }}" class="{% if request.endpoint in ['events', 'edit_event', 'event_attendance'] %}active{% endif %}">
-                <span class="nav-icon">{{ icon('calendar', 20) }}</span>
-                <span class="nav-text">Events</span>
-            </a>
-
-            <div class="dropdown {% if request.endpoint in attendance_pages %}open{% endif %}">
-                <a href="javascript:void(0)" class="{% if request.endpoint in attendance_pages %}active{% endif %}">
-                    <span class="nav-icon">{{ icon('clipboard-check', 20) }}</span>
-                    <span class="nav-text">Attendance</span>
+            <nav class="nav" aria-label="Main">
+                {% if session.get('role') in ['admin', 'officer'] %}
+                <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    {{ icon('dashboard', 18) }}<span>Dashboard</span>
                 </a>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('attendance_dashboard') }}" class="{% if request.endpoint == 'attendance_dashboard' %}active{% endif %}">
-                        <span class="nav-text">- Attendance Dashboard</span>
-                    </a>
-                    <a href="{{ url_for('attendance_history') }}" class="{% if request.endpoint == 'attendance_history' %}active{% endif %}">
-                        <span class="nav-text">- Attendance History</span>
-                    </a>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if session.get('role') == 'admin' %}
-            <div class="dropdown {% if request.endpoint in student_pages %}open{% endif %}">
-                <a href="javascript:void(0)" class="{% if request.endpoint in student_pages %}active{% endif %}">
-                    <span class="nav-icon">{{ icon('graduation-cap', 20) }}</span>
-                    <span class="nav-text">Students</span>
+                <a href="{{ url_for('events') }}" class="nav-link {% if request.endpoint in event_pages %}active{% endif %}">
+                    {{ icon('calendar', 18) }}<span>Events</span>
                 </a>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('students') }}" class="{% if request.endpoint == 'students' %}active{% endif %}">
-                        <span class="nav-text">- Students</span>
-                    </a>
-                    <a href="{{ url_for('year_levels') }}" class="{% if request.endpoint == 'year_levels' %}active{% endif %}">
-                        <span class="nav-text">- Year Levels</span>
-                    </a>
-                    <a href="{{ url_for('academic_years') }}" class="{% if request.endpoint == 'academic_years' %}active{% endif %}">
-                        <span class="nav-text">- Academic Years</span>
-                    </a>
+
+                {% set open = request.endpoint in attendance_pages %}
+                <div class="nav-group {% if open %}open{% endif %}">
+                    <button type="button" class="nav-link nav-toggle {% if open %}current{% endif %}" aria-expanded="{{ 'true' if open else 'false' }}">
+                        {{ icon('clipboard-check', 18) }}<span>Attendance</span>{{ icon('chevron-down', 16, 'nav-chevron') }}
+                    </button>
+                    <div class="nav-sub">
+                        <a href="{{ url_for('attendance_dashboard') }}" class="nav-sublink {% if request.endpoint == 'attendance_dashboard' %}active{% endif %}">Attendance Dashboard</a>
+                        <a href="{{ url_for('attendance_history') }}" class="nav-sublink {% if request.endpoint == 'attendance_history' %}active{% endif %}">Attendance History</a>
+                    </div>
                 </div>
+                {% endif %}
+
+                {% if session.get('role') == 'admin' %}
+                {% set open = request.endpoint in student_pages %}
+                <div class="nav-group {% if open %}open{% endif %}">
+                    <button type="button" class="nav-link nav-toggle {% if open %}current{% endif %}" aria-expanded="{{ 'true' if open else 'false' }}">
+                        {{ icon('graduation-cap', 18) }}<span>Students</span>{{ icon('chevron-down', 16, 'nav-chevron') }}
+                    </button>
+                    <div class="nav-sub">
+                        <a href="{{ url_for('students') }}" class="nav-sublink {% if request.endpoint == 'students' %}active{% endif %}">Students</a>
+                        <a href="{{ url_for('year_levels') }}" class="nav-sublink {% if request.endpoint == 'year_levels' %}active{% endif %}">Year Levels</a>
+                        <a href="{{ url_for('academic_years') }}" class="nav-sublink {% if request.endpoint == 'academic_years' %}active{% endif %}">Academic Years</a>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('users') }}" class="nav-link {% if request.endpoint == 'users' %}active{% endif %}">
+                    {{ icon('users', 18) }}<span>Users</span>
+                </a>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                <span class="avatar" aria-hidden="true">{{ (session.get('username') or '?')[:1]|upper }}</span>
+                <span class="account">
+                    <span class="account-name">{{ session.get('username') }}</span>
+                    <span class="account-role">{{ session.get('role')|capitalize }}</span>
+                </span>
+                <a href="{{ url_for('logout') }}" class="logout" title="Log out" aria-label="Log out">{{ icon('log-out', 18) }}</a>
             </div>
+        </aside>
 
-            <a href="{{ url_for('users') }}" class="{% if request.endpoint == 'users' %}active{% endif %}">
-                <span class="nav-icon">{{ icon('users', 20) }}</span>
-                <span class="nav-text">Users</span>
-            </a>
-        {% endif %}
-
-        <a href="{{ url_for('logout') }}">
-            <span class="nav-icon">{{ icon('log-out', 20) }}</span>
-            <span class="nav-text">Logout</span>
-        </a>
-    </nav>
-
-    <div class="user-info">
-        <div class="user-avatar">{{ icon('user', 22) }}</div>
-        <div class="user-details">
-            <div class="user-name">{{ session.get('username') }}</div>
-            <div class="user-role">{{ session.get('role')|capitalize }} Role</div>
-        </div>
-    </div>
-</aside>
-
-
-        <!-- Main content -->
         <main class="main-content">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -114,34 +101,27 @@
     </div>
 
     <script>
-        // Dropdown toggle
-        document.querySelectorAll('.dropdown > a').forEach(item => {
-            item.addEventListener('click', function() {
-                const parent = this.parentElement;
-
-                // Close all other dropdowns
-                document.querySelectorAll('.dropdown.open').forEach(dropdown => {
-                    if (dropdown !== parent) {
-                        dropdown.classList.remove('open');
-                    }
-                });
-
-                // Toggle current dropdown
-                parent.classList.toggle('open');
+        // Sidebar groups (Attendance, Students) expand and collapse
+        document.querySelectorAll('.nav-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const group = toggle.parentElement;
+                const open = group.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
             });
         });
 
-        // Close dropdowns when clicking outside the sidebar menus
-        // (closest() so clicks on the icon/text inside the toggle don't count as "outside")
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.dropdown')) {
-                document.querySelectorAll('.dropdown.open').forEach(dropdown => {
-                    if (!dropdown.querySelector('.dropdown-content a.active')) {
-                        dropdown.classList.remove('open');
-                    }
-                });
-            }
-        });
+        // Small screens: the menu button slides the sidebar in
+        (function () {
+            const button = document.getElementById('sidebarToggle');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const setOpen = open => {
+                document.body.classList.toggle('sidebar-open', open);
+                button.setAttribute('aria-expanded', open ? 'true' : 'false');
+            };
+            button.addEventListener('click', () => setOpen(!document.body.classList.contains('sidebar-open')));
+            backdrop.addEventListener('click', () => setOpen(false));
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+        })();
 
         // Links that change data (delete, promote) are sent as POST requests.
         // <a href="..." data-post data-confirm="Are you sure?">
@@ -155,6 +135,21 @@
             form.action = link.href;
             document.body.appendChild(form);
             form.submit();
+        });
+
+        // Collapsible "Add ..." cards: <button data-toggle-target="formId">
+        document.querySelectorAll('[data-toggle-target]').forEach(button => {
+            const target = document.getElementById(button.dataset.toggleTarget);
+            if (!target) return;
+            button.setAttribute('aria-expanded', target.hidden ? 'false' : 'true');
+            button.addEventListener('click', () => {
+                target.hidden = !target.hidden;
+                button.setAttribute('aria-expanded', target.hidden ? 'false' : 'true');
+                if (!target.hidden) {
+                    const first = target.querySelector('input:not([type=hidden]), select');
+                    if (first) first.focus();
+                }
+            });
         });
 
         // Flash messages: dismiss button + auto-hide (errors stay until dismissed)

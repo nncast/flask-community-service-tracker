@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const labels = Array.from(container.querySelectorAll("#yearLevelGrid .checkbox-label"));
     // Edit page: "all" or a comma separated list of year level IDs
     const initialTargets = form.dataset.targets || "";
+    const noYearMessage = hint.textContent.trim();
+    const pickDateMessage = "Pick a date first. The year levels of that academic year will appear here.";
     let currentAyId = null;
 
     // An academic year covers the span from its earliest semester start to its latest semester end
@@ -38,9 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function update(isInitial) {
         if (!dateInput.value) {
             container.style.display = "none";
-            hint.style.display = "none";
+            hint.textContent = pickDateMessage;
+            hint.style.display = "block";
             return;
         }
+        hint.textContent = noYearMessage;
         const ay = academicYearFor(dateInput.value);
         const ayChanged = (ay ? ay.id : null) !== currentAyId;
         currentAyId = ay ? ay.id : null;

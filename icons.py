@@ -35,6 +35,8 @@ ICONS = {
     "search": '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
     "arrow-left": '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
     "loader": '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',
+    "chevron-down": '<path d="m6 9 6 6 6-6"/>',
+    "menu": '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
 }
 
 

@@ -1,19 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Year Levels Management{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/year_level.css') }}">
-
 <div class="dashboard-header">
     <h1>Year Level Management</h1>
     <p class="subtitle">Manage year levels and sections for academic years</p>
 </div>
-<div class="content-card">
-    <div class="card-header toggler" onclick="toggleAddYearLevel()">
+<div class="content-card collapsible">
+    <div class="card-header">
         <h3>Add New Year Level</h3>
-        <span id="toggle-icon-yl">▼</span>
+        <button type="button" class="btn-secondary" data-toggle-target="add-year-level-container">{{ icon('plus', 16) }} Add Year Level</button>
     </div>
 
-    <div class="card-content" id="add-year-level-container" style="display: none;">
+    <div class="card-content" id="add-year-level-container" hidden>
         <form method="post" action="{{ url_for('add_year_level') }}" class="year-level-form">
             
             <div class="form-row">
@@ -63,7 +61,7 @@
         <div class="filter-row">
             <div class="form-group">
                 <label>Search</label>
-                <input type="text" name="search" value="{{ search }}" placeholder="Search year levels..." id="searchInput" data-autosubmit>
+                <input type="search" name="search" value="{{ search }}" placeholder="Level or section" id="searchInput" data-autosubmit>
             </div>
             
             <div class="form-group">
@@ -156,13 +154,5 @@
 document.getElementById("yearFilter").addEventListener("change", function () {
     document.getElementById("autoFilterForm").submit();
 });
-function toggleAddYearLevel() {
-    const container = document.getElementById("add-year-level-container");
-    const icon = document.getElementById("toggle-icon-yl");
-
-    const isHidden = container.style.display === "none";
-    container.style.display = isHidden ? "block" : "none";
-    icon.textContent = isHidden ? "▲" : "▼";
-}
 </script>
 {% endblock %}

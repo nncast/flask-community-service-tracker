@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CIT CST</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>Sign in - CIT Community Service Tracker</title>
+    <link rel="icon" href="{{ url_for('static', filename='imgs/cit_logo_small.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <span class="logo-icon">
-                    <img src="{{ url_for('static', filename='imgs/cit_logo.png') }}" alt="Logo">
-                </span>
+                <img src="{{ url_for('static', filename='imgs/cit_logo_small.png') }}" alt="College of Information Technology seal">
                 <div class="logo-text">CIT Community Service Tracker</div>
+                <div class="logo-org">University of La Salette · College of Information Technology</div>
             </div>
 
-            <h1>Welcome Back</h1>
+            <h1>Welcome back</h1>
             <p class="subtitle">Sign in to your account</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}

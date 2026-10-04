@@ -2,14 +2,12 @@
 {% block title %}Attendance Dashboard{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/attendance_dashboard.css') }}">
-
 <div class="dashboard-header">
     <h1>Attendance Dashboard</h1>
     <p class="subtitle">Track and update students' attendance for all events</p>
 </div>
 
-<div class="metrics-grid" style="margin-bottom: 32px;">
+<div class="metrics-grid">
     <div class="metric-card">
         <div class="metric-icon">{{ icon('users', 26) }}</div>
         <div class="metric-content">
@@ -42,7 +40,7 @@
             <h3>Attendance Records</h3>
             <!-- Academic year / semester reload the page with that data; the rest filter in place -->
             <form method="get" action="{{ url_for('attendance_dashboard') }}" class="filters" id="periodForm">
-                <input type="text" id="nameSearchInput" class="filter-select" placeholder="Search by student name...">
+                <input type="search" id="nameSearchInput" class="filter-select" placeholder="Search students…" aria-label="Search students">
 
                 <select id="academicYearFilter" name="academic_year" class="filter-select">
                     {% for ay in academic_years %}
@@ -90,7 +88,7 @@
                             <tr>
                                 <th rowspan="2" class="sticky-col id-col">Student ID</th>
                                 <th rowspan="2" class="sticky-col name-col">Name</th>
-                                <th rowspan="2">Year Level</th>
+                                <th rowspan="2" class="level-col">Year Level</th>
                                 <th rowspan="2" class="total-col">Total CS Hours</th>
 
                                 {% for event in events %}
@@ -98,11 +96,8 @@
                                         class="event-header"
                                         data-event-id="{{ event.id }}">
                                         <div class="event-info">
-                                            <strong>{{ event.name }}</strong>
-                                            <div class="event-date-chip">
-                                                <span>{{ event.date.strftime('%m/%d/%Y') }}</span>
-                                            </div>
-                                            <span class="event-hours">({{ "%g"|format(event.required_hours) }}h required)</span>
+                                            <strong title="{{ event.name }}">{{ event.name }}</strong>
+                                            <span class="event-meta">{{ event.date.strftime('%b %d, %Y') }} · {{ "%g"|format(event.required_hours) }}h required</span>
                                         </div>
                                     </th>
                                 {% endfor %}
@@ -110,7 +105,7 @@
 
                             <tr>
                                 {% for event in events %}
-                                    <th class="sub-header" data-event-id="{{ event.id }}">Time In</th>
+                                    <th class="sub-header group-start" data-event-id="{{ event.id }}">Time In</th>
                                     <th class="sub-header" data-event-id="{{ event.id }}">Time Out</th>
                                     <th class="sub-header" data-event-id="{{ event.id }}">Hours</th>
                                 {% endfor %}
@@ -122,7 +117,7 @@
                             <tr class="student-row" data-year-level="{{ student.year_level.label }}">
                                 <td class="sticky-col id-col">{{ student.student_id }}</td>
                                 <td class="sticky-col name-col">{{ student.full_name }}</td>
-                                <td>{{ student.year_level.label }}</td>
+                                <td class="level-col">{{ student.year_level.label }}</td>
                                 <td class="total-col">
                                     <span class="total-hours">{{ "%g"|format(totals[student.id]) }}</span>
                                 </td>
@@ -130,7 +125,7 @@
                                 {% for event in events %}
                                     {% set attendance = attendance_map.get((student.id, event.id)) %}
                                     {% if attendance %}
-                                        <td class="checkbox-cell" data-event-id="{{ event.id }}">
+                                        <td class="checkbox-cell group-start" data-event-id="{{ event.id }}">
                                             <input type="hidden" name="attendance_ids" value="{{ attendance.id }}">
                                             <input type="checkbox" class="att-in" name="timein_{{ attendance.id }}" aria-label="Time in" {% if attendance.timed_in %}checked{% endif %}>
                                         </td>
@@ -138,11 +133,11 @@
                                             <input type="checkbox" class="att-out" name="timeout_{{ attendance.id }}" aria-label="Time out" {% if attendance.timed_out %}checked{% endif %}>
                                         </td>
                                         <td class="hours-cell" data-event-id="{{ event.id }}">
-                                            <span class="hours-value" data-required="{{ event.required_hours }}">{{ "%g"|format(attendance.accumulated_hours or 0) }}</span>
+                                            <span class="hours-value {% if not attendance.accumulated_hours %}done{% endif %}" data-required="{{ event.required_hours }}">{{ "%g"|format(attendance.accumulated_hours or 0) }}</span>
                                         </td>
                                     {% else %}
                                         <!-- Student is not targeted by this event -->
-                                        <td class="checkbox-cell not-applicable" data-event-id="{{ event.id }}" colspan="3" title="Not part of this event">—</td>
+                                        <td class="checkbox-cell not-applicable group-start" data-event-id="{{ event.id }}" colspan="3" title="Not part of this event">—</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
@@ -243,6 +238,7 @@ function recalcRow(row) {
         const required = parseFloat(hoursEl.dataset.required) || 0;
         const hours = timedIn && timedOut ? 0 : (timedIn || timedOut ? required / 2 : required);
         hoursEl.textContent = format(hours);
+        hoursEl.classList.toggle("done", hours === 0);
         total += hours;
     });
     row.querySelector(".total-hours").textContent = format(total);

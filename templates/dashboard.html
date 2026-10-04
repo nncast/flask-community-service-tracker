@@ -2,13 +2,9 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-background">
-    <div class="dashboard-overlay">
-        <div class="dashboard-header">
-            <h1>Welcome to the Dashboard</h1>
-            <p class="subtitle">Overview of your academic management system</p>
-        </div>
-    </div>
+<div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Welcome back, {{ session.get('username') }}. Here's what's happening with community service.</p>
 </div>
 
 <div class="dashboard-content">

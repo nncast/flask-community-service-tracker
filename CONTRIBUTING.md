@@ -33,10 +33,11 @@ We welcome contributions from our team and the community. Please follow these gu
 ## Before you submit
 
 - Keep commit messages clear and descriptive.
-- Avoid committing secrets, credentials, local environment files, or virtual environments (`venv/`).
+- Avoid committing secrets, credentials, local environment files, or virtual environments (`.venv/`).
+- Manage dependencies with uv: `uv add <package>` updates `pyproject.toml` and `uv.lock` together. Commit both.
 - Never commit the `instance/` folder — it holds the SQLite database (`dbcs.db`) and the session secret key.
 - If you add or change behavior, update relevant documentation.
-- Run the app locally (`python app.py`, see [`README.md`](README.md#quick-start)) and check the pages your change touches as both an **Admin** and an **Officer**.
+- Run the app locally (`uv run app.py`, see [`README.md`](README.md#quick-start)) and check the pages your change touches as both an **Admin** and an **Officer**.
 
 ## Code style
 

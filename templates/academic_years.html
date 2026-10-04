@@ -2,8 +2,6 @@
 {% block title %}Academic Years{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/academic_years.css') }}">
-
 <div class="dashboard-header">
     <h1>Academic Years</h1>
     <p class="subtitle">Manage academic years and their semester dates</p>
@@ -13,16 +11,19 @@
 
     <!-- Add Academic Year Card -->
     <div class="content-card" id="add-academic-year-card">
-        <h2>Add Academic Year</h2>
+        <div class="card-header">
+            <h3>Add Academic Year</h3>
+        </div>
+        <div class="card-content">
         <form method="post" action="{{ url_for('add_academic_year') }}" id="add-academic-year-form">
             <div class="form-row">
                 <div class="form-group">
-                    <label for="year-input">Year:</label>
+                    <label for="year-input">Academic Year</label>
                     <input type="text" name="year" id="year-input" required placeholder="e.g. 2025-2026"
                            pattern="\d{4}-\d{4}" title="Use the format YYYY-YYYY, e.g. 2025-2026">
                 </div>
                 <div class="form-group">
-                    <label for="status-select">Status:</label>
+                    <label for="status-select">Status</label>
                     <select name="status" id="status-select">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
@@ -35,11 +36,11 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Start:</label>
+                        <label>Start date</label>
                         <input type="date" name="start1" id="start1" required>
                     </div>
                     <div class="form-group">
-                        <label>End:</label>
+                        <label>End date</label>
                         <input type="date" name="end1" id="end1" required>
                     </div>
                 </div>
@@ -50,25 +51,30 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Start:</label>
+                        <label>Start date</label>
                         <input type="date" name="start2" id="start2" required>
                     </div>
                     <div class="form-group">
-                        <label>End:</label>
+                        <label>End date</label>
                         <input type="date" name="end2" id="end2" required>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary">Add Academic Year</button>
+            <button type="submit" class="btn-primary">
+                <span class="btn-icon">{{ icon('plus', 16) }}</span>
+                Add Academic Year
+            </button>
         </form>
+        </div>
     </div>
-
-    <hr>
 
     <!-- Existing Academic Years Table -->
     <div class="content-card" id="existing-academic-years-card">
-        <h2>Existing Academic Years</h2>
+        <div class="card-header">
+            <h3>Existing Academic Years</h3>
+        </div>
+        <div class="card-content">
         <div class="table-container">
             <table class="ay-table" id="academic-years-table">
                 <thead>
@@ -129,6 +135,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
         </div>
     </div>
 

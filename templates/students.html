@@ -1,19 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Students Management{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/students.css') }}">
-
 <div class="dashboard-header">
     <h1>Student Management</h1>
     <p class="subtitle">Manage student records and information</p>
 </div>
 
-<div class="content-card">
-    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+<div class="content-card collapsible">
+    <div class="card-header">
         <h3>Add New Student</h3>
-        <button type="button" id="toggleAddStudent" class="btn-secondary">Add Student</button>
+        <button type="button" class="btn-secondary" data-toggle-target="addStudentForm">{{ icon('plus', 16) }} Add Student</button>
     </div>
-    <div class="card-content" id="addStudentForm" style="display:none;">
+    <div class="card-content" id="addStudentForm" hidden>
         <form method="post" action="{{ url_for('add_student') }}" class="student-form">
             <div class="form-row">
                 <div class="form-group">
@@ -95,11 +93,11 @@
     <div class="card-content">
 
         <!-- Search & Filter moved here -->
-        <form method="get" action="{{ url_for('students') }}" class="filter-form" style="margin-bottom: 1rem;">
+        <form method="get" action="{{ url_for('students') }}" class="filter-form">
             <div class="filter-row">
                 <div class="form-group">
                     <label>Search</label>
-                    <input type="text" name="search" value="{{ search }}" placeholder="Search students..." data-autosubmit>
+                    <input type="search" name="search" value="{{ search }}" placeholder="Name or student ID" data-autosubmit>
                 </div>
                 
                 <div class="form-group">
@@ -319,15 +317,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!select.id.includes('academic_year_select') && !select.id.includes('filter_ay')) {
             filterRowYearLevels(select);
         }
-    });
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-    const toggleButton = document.getElementById("toggleAddStudent");
-    const addFormDiv = document.getElementById("addStudentForm");
-
-    toggleButton.addEventListener("click", function() {
-        addFormDiv.style.display = (addFormDiv.style.display === "none" || addFormDiv.style.display === "") ? "block" : "none";
     });
 });
 

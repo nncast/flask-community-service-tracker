@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/python-3.12%2B-2B9580?style=flat-square&logo=python&logoColor=white" alt="python">
   <img src="https://img.shields.io/badge/Flask-2.3-E59A18?style=flat-square&logo=flask&logoColor=white" alt="Flask">
   <img src="https://img.shields.io/badge/SQLite-SQLAlchemy-CA2A44?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/uv-managed-DE5FE9?style=flat-square&logo=uv&logoColor=white" alt="uv">
 </p>
 
 <p align="center">
@@ -51,19 +52,31 @@ Please don't report vulnerabilities in public issues. Use the repository's **Sec
 
 ## Quick Start
 
-Requires [Python 3.12+](https://www.python.org/downloads/) and optionally [Git](https://git-scm.com/downloads).
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/) and optionally [Git](https://git-scm.com/downloads). uv installs the right Python (3.12+) and every dependency for you.
 
 ```
 git clone https://github.com/nncast/flask-community-service-tracker.git
 cd flask-community-service-tracker
 
-python -m venv venv
-venv\Scripts\activate          # Windows
-source venv/bin/activate       # macOS/Linux
+uv run app.py
+```
 
-pip install -r requirements.txt
+The first `uv run` creates a `.venv` and installs the locked dependencies from `uv.lock`; later runs start immediately.
+
+<details>
+<summary>Without uv (plain pip)</summary>
+
+```
+python -m venv .venv
+.venv\Scripts\activate         # Windows
+source .venv/bin/activate      # macOS/Linux
+
+pip install flask==2.3.3 werkzeug==2.3.8 flask-sqlalchemy==3.0.5 flask-migrate==4.0.4 "sqlalchemy>=2.0.41,<2.2"
 python app.py
 ```
+
+Or generate a requirements file from the lockfile with `uv export --no-hashes -o requirements.txt`.
+</details>
 
 Open **http://localhost:5000** and sign in with `admin` / `admin123`. **Change this password after the first login.**
 
