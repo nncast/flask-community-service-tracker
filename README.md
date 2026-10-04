@@ -14,7 +14,6 @@
 
 <p align="center">
   <a href="#quick-start"><strong>Quick Start</strong></a> ·
-  <a href="#screenshots">Screenshots</a> ·
   <a href="#roles">Roles</a> ·
   <a href="AUTHORS.md">Authors</a> ·
   <a href="https://github.com/nncast/flask-community-service-tracker/releases" target="_blank" rel="noopener noreferrer">Release Notes</a>
@@ -23,23 +22,6 @@
 The CIT Community Service Tracker is a Flask web app for the University of La Salette College of Information Technology. Officers record which students signed in and out of community service events, and the app tracks the service hours each student still owes per semester.
 
 > **Current version: v0.1.3** — Server-Side Access Control, Safe Attendance Saving, Live Hour Totals, Event/Attendance Sync & Cleaner UI. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for the full version history.
-
-## Screenshots
-
-<table>
-  <tr>
-    <td width="50%"><img src="docs/screenshots/dashboard.png" alt="Dashboard"><br><sub><b>Dashboard</b>: students, events, upcoming events and recent attendance changes</sub></td>
-    <td width="50%"><img src="docs/screenshots/attendance-dashboard.png" alt="Attendance Dashboard"><br><sub><b>Attendance Dashboard</b>: every student × event for a semester, with live hour totals</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/events.png" alt="Events"><br><sub><b>Events</b>: create events for specific year levels, grouped by academic year and semester</sub></td>
-    <td><img src="docs/screenshots/event-attendance.png" alt="Event Attendance"><br><sub><b>Event Attendance</b>: sign students in and out; hours owed update as you tick</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/students.png" alt="Students"><br><sub><b>Students</b>: records per year level, with promotion to the next year</sub></td>
-    <td><img src="docs/screenshots/attendance-history.png" alt="Attendance History"><br><sub><b>Attendance History</b>: every hours change, who made it and why</sub></td>
-  </tr>
-</table>
 
 ## How hours work
 
