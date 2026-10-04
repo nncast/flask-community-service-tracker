@@ -831,3 +831,56 @@ body, html {
 .main-content {
     min-width: 0;
 }
+
+/* Inline SVG icons (icons.py) */
+.icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.nav-icon,
+.btn-icon,
+.metric-icon .icon,
+.user-avatar {
+    line-height: 0;
+}
+
+.nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+}
+
+.metric-icon {
+    color: #7c3aed;
+}
+
+.metric-card.highlight .metric-icon {
+    color: #fff;
+}
+
+.user-avatar {
+    color: #fff;
+}
+
+.empty-icon .icon {
+    color: #94a3b8;
+}
+
+.icon-spin {
+    animation: icon-spin 0.8s linear infinite;
+}
+
+@keyframes icon-spin {
+    to { transform: rotate(360deg); }
+}
+
+.search-icon {
+    line-height: 0;
+}

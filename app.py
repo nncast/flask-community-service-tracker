@@ -3,6 +3,7 @@ import secrets
 from flask import Flask
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
+from icons import icon
 from models import db, User, AcademicYear, Semester, YearLevel, Student, Event, EventAttendance, EventAttendanceHistory
 
 # ----------------- 1. Create app -----------------
@@ -32,6 +33,7 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'   # blocks cross-site form posts f
 # ----------------- 3. Initialize extensions -----------------
 db.init_app(app)
 migrate = Migrate(app, db)
+app.jinja_env.globals["icon"] = icon
 
 # ----------------- 4. Import routes after app creation -----------------
 from routes import *

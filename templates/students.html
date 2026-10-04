@@ -80,7 +80,7 @@
             </div>
 
             <button type="submit" class="btn-primary">
-                <span class="btn-icon">➕</span>
+                <span class="btn-icon">{{ icon('plus', 16) }}</span>
                 Add Student
             </button>
         </form>
@@ -198,15 +198,15 @@
                             <td class="actions">
                                 <div class="action-buttons">
                                     <button type="submit" class="btn-update" title="Update">
-                                        <span class="btn-icon">💾</span>
+                                        <span class="btn-icon">{{ icon('save', 16) }}</span>
                                     </button>
                                     <a href="{{ url_for('delete_student', student_id=student.id) }}" class="btn-delete" title="Delete" data-post data-confirm="Delete {{ student.fname }} {{ student.lname }}? Their attendance records are deleted too.">
-                                        <span class="btn-icon">🗑️</span>
+                                        <span class="btn-icon">{{ icon('trash', 16) }}</span>
                                     </a>
                                     {% if student.status != 'graduate' %}
                                     <a href="{{ url_for('promote_student', student_id=student.id) }}" class="btn-promote" title="{{ 'Graduate' if student.year_level.level >= 4 else 'Promote' }}" data-post
                                        data-confirm="{{ 'Mark ' ~ student.fname ~ ' ' ~ student.lname ~ ' as graduated?' if student.year_level.level >= 4 else 'Promote ' ~ student.fname ~ ' ' ~ student.lname ~ ' to the next year level?' }}">
-                                        <span class="btn-icon">⬆️</span>
+                                        <span class="btn-icon">{{ icon('promote', 16) }}</span>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -221,7 +221,7 @@
 
         {% if not students %}
         <div class="empty-state">
-            <span class="empty-icon">👥</span>
+            <span class="empty-icon">{{ icon('users', 48) }}</span>
             <p>No students found.</p>
             <p class="subtext">Add your first student using the form above.</p>
         </div>

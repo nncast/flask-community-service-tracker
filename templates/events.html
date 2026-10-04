@@ -56,7 +56,7 @@
             </div>
 
             <button type="submit" class="btn-primary">
-                <span class="btn-icon">➕</span>
+                <span class="btn-icon">{{ icon('plus', 16) }}</span>
                 Create Event
             </button>
         </form>
@@ -120,14 +120,14 @@
                                 <td>
                                     <div class="action-buttons">
                                         <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn-edit" title="Edit Event">
-                                            <span class="btn-icon">✏️</span>
+                                            <span class="btn-icon">{{ icon('pencil', 16) }}</span>
                                         </a>
                                         <a href="{{ url_for('event_attendance', event_id=event.id) }}" class="btn-attendance" title="View Attendance">
-                                            <span class="btn-icon">👥</span>
+                                            <span class="btn-icon">{{ icon('clipboard-check', 16) }}</span>
                                         </a>
                                         <a href="{{ url_for('delete_event', event_id=event.id) }}" class="btn-delete" title="Delete Event"
                                            data-post data-confirm="Delete &quot;{{ event.name }}&quot;? Its attendance records and history are deleted too.">
-                                            <span class="btn-icon">🗑️</span>
+                                            <span class="btn-icon">{{ icon('trash', 16) }}</span>
                                         </a>
                                     </div>
                                 </td>
@@ -141,7 +141,7 @@
             {% endfor %}
 
             <div class="empty-state" id="noEventsMatch" {% if events %}style="display:none;"{% endif %}>
-                <span class="empty-icon">📅</span>
+                <span class="empty-icon">{{ icon('calendar', 48) }}</span>
                 {% if events %}
                 <p>No events match your filters.</p>
                 {% else %}

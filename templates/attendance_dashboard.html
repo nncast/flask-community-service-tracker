@@ -11,7 +11,7 @@
 
 <div class="metrics-grid" style="margin-bottom: 32px;">
     <div class="metric-card">
-        <div class="metric-icon">👥</div>
+        <div class="metric-icon">{{ icon('users', 26) }}</div>
         <div class="metric-content">
             <h3>Total Students</h3>
             <div class="metric-value">{{ students|length }}</div>
@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="metric-card">
-        <div class="metric-icon">📅</div>
+        <div class="metric-icon">{{ icon('calendar', 26) }}</div>
         <div class="metric-content">
             <h3>Events</h3>
             <div class="metric-value">{{ events|length }}</div>
@@ -27,7 +27,7 @@
         </div>
     </div>
     <div class="metric-card highlight">
-        <div class="metric-icon">⏱️</div>
+        <div class="metric-icon">{{ icon('clock', 26) }}</div>
         <div class="metric-content">
             <h3>Total CS Hours</h3>
             <div class="metric-value" id="grandTotal">{{ "%g"|format(total_hours) }}</div>

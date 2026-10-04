@@ -46,10 +46,10 @@ Each event has a number of **required hours**. Every student in the event's targ
 
 | Signed in | Signed out | Hours owed |
 |:---:|:---:|:---:|
-| ✅ | ✅ | 0 |
-| ✅ | — | half |
-| — | ✅ | half |
-| — | — | full |
+| Yes | Yes | 0 |
+| Yes | No | half |
+| No | Yes | half |
+| No | No | full |
 
 A student's **Total CS Hours** is the sum for the selected academic year or semester, and every change is logged in Attendance History.
 

@@ -21,7 +21,7 @@
             </select>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search students or events..." class="search-input">
-                <span class="search-icon">🔍</span>
+                <span class="search-icon">{{ icon('search', 16) }}</span>
             </div>
         </div>
     </div>
@@ -96,7 +96,7 @@
 
         {% if not logs %}
         <div class="empty-state">
-            <span class="empty-icon">📝</span>
+            <span class="empty-icon">{{ icon('clipboard-list', 48) }}</span>
             <p>No attendance changes have been made yet.</p>
         </div>
         {% endif %}

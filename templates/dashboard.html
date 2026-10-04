@@ -15,7 +15,7 @@
     <div class="metrics-grid">
         <div class="metric-card">
             <div class="metric-icon">
-                <span class="icon">👥</span>
+                <span class="icon">{{ icon('users', 26) }}</span>
             </div>
             <div class="metric-content">
                 <h3>Total Students</h3>
@@ -26,7 +26,7 @@
 
         <div class="metric-card">
             <div class="metric-icon">
-                <span class="icon">📅</span>
+                <span class="icon">{{ icon('calendar', 26) }}</span>
             </div>
             <div class="metric-content">
                 <h3>Total Events</h3>
@@ -37,7 +37,7 @@
 
         <div class="metric-card highlight">
             <div class="metric-icon">
-                <span class="icon">⏰</span>
+                <span class="icon">{{ icon('calendar-clock', 26) }}</span>
             </div>
             <div class="metric-content">
                 <h3>Upcoming Events</h3>
@@ -48,7 +48,7 @@
 
         <div class="metric-card">
             <div class="metric-icon">
-                <span class="icon">🔄</span>
+                <span class="icon">{{ icon('history', 26) }}</span>
             </div>
             <div class="metric-content">
                 <h3>Recent Changes</h3>
@@ -82,7 +82,7 @@
                 </div>
                 {% else %}
                 <div class="empty-state">
-                    <span class="empty-icon">📅</span>
+                    <span class="empty-icon">{{ icon('calendar', 48) }}</span>
                     <p>No upcoming events</p>
                 </div>
                 {% endif %}
@@ -141,7 +141,7 @@
         </div>
         {% else %}
         <div class="empty-state">
-            <span class="empty-icon">📊</span>
+            <span class="empty-icon">{{ icon('chart', 48) }}</span>
             <p>No recent changes</p>
         </div>
         {% endif %}

@@ -112,7 +112,7 @@
                             <td class="actions-cell">
                                 <div class="action-buttons">
                                     <button type="submit" class="btn-update" title="Update">
-                                        <span class="btn-icon">💾</span>
+                                        <span class="btn-icon">{{ icon('save', 16) }}</span>
                                     </button>
 
                                     <a href="{{ url_for('delete_academic_year', ay_id=ay.id) }}"
@@ -120,7 +120,7 @@
                                     title="Delete"
                                     data-post
                                     data-confirm="Delete {{ ay.year }}? This also deletes its semesters, year levels, students and their attendance records.">
-                                        <span class="btn-icon">🗑️</span>
+                                        <span class="btn-icon">{{ icon('trash', 16) }}</span>
                                     </a>
                                 </div>
                             </td>

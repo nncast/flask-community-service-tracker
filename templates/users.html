@@ -126,11 +126,11 @@
                             <td class="actions">
                                 <div class="action-buttons">
                                     <button type="submit" class="btn-update" title="Update User">
-                                        <span class="btn-icon">💾</span>
+                                        <span class="btn-icon">{{ icon('save', 16) }}</span>
                                     </button>
                                     {% if user.id != session.get('user_id') %}
                                     <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn-delete" title="Delete User" data-post data-confirm="Are you sure you want to delete {{ user.username }}?">
-                                        <span class="btn-icon">🗑️</span>
+                                        <span class="btn-icon">{{ icon('trash', 16) }}</span>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -144,7 +144,7 @@
 
         {% if not users %}
         <div class="empty-state">
-            <span class="empty-icon">👥</span>
+            <span class="empty-icon">{{ icon('users', 48) }}</span>
             <p>No users found.</p>
             <p class="subtext">Add your first user using the form above.</p>
         </div>
