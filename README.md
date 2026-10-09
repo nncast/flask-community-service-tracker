@@ -5,11 +5,11 @@
 <h1 align="center">CIT Community Service Tracker</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.0-8038C5?style=flat-square" alt="version">
-  <img src="https://img.shields.io/badge/status-complete-2772BD?style=flat-square" alt="status">
-  <img src="https://img.shields.io/badge/python-3.12%2B-2B9580?style=flat-square&logo=python&logoColor=white" alt="python">
-  <img src="https://img.shields.io/badge/Flask-2.3-E59A18?style=flat-square&logo=flask&logoColor=white" alt="Flask">
-  <img src="https://img.shields.io/badge/SQLite-SQLAlchemy-CA2A44?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/version-0.2.0-5A3EA6?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/status-complete-5A3EA6?style=flat-square" alt="status">
+  <img src="https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="python">
+  <img src="https://img.shields.io/badge/Flask-2.3-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask">
+  <img src="https://img.shields.io/badge/SQLite-SQLAlchemy-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite">
   <img src="https://img.shields.io/badge/uv-managed-DE5FE9?style=flat-square&logo=uv&logoColor=white" alt="uv">
 </p>
 
