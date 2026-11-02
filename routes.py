@@ -15,6 +15,7 @@ from models import (
 )
 
 ACADEMIC_YEAR_PATTERN = re.compile(r"^(\d{4})-(\d{4})$")
+MIN_PASSWORD_LENGTH = 8
 
 
 # -------------------- Access control --------------------
@@ -281,6 +282,9 @@ def add_user():
     if len(username) > 50:
         flash("Username must be 50 characters or fewer.", "error")
         return redirect(url_for("users"))
+    if len(password) < MIN_PASSWORD_LENGTH:
+        flash(f"Password must be at least {MIN_PASSWORD_LENGTH} characters.", "error")
+        return redirect(url_for("users"))
     if role not in ROLES or status not in USER_STATUSES:
         flash("Invalid role or status.", "error")
         return redirect(url_for("users"))
@@ -319,13 +323,15 @@ def edit_user(user_id):
     if user.id == g.user.id and (role != 'admin' or status != 'active'):
         flash('You cannot remove your own admin role or deactivate your own account.', 'error')
         return redirect(url_for('users'))
+    # Only update password if a new one is entered
+    new_password = request.form.get('password')
+    if new_password and len(new_password) < MIN_PASSWORD_LENGTH:
+        flash(f'Password must be at least {MIN_PASSWORD_LENGTH} characters.', 'error')
+        return redirect(url_for('users'))
 
     user.username = username
     user.role = role
     user.status = status
-
-    # Only update password if a new one is entered
-    new_password = request.form.get('password')
     if new_password:
         user.password = generate_password_hash(new_password)
 
