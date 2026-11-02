@@ -22,7 +22,7 @@
                 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required placeholder="Enter password" autocomplete="new-password">
+                    <input type="password" name="password" required minlength="8" placeholder="At least 8 characters" autocomplete="new-password">
                 </div>
             </div>
 
@@ -106,7 +106,7 @@
                         <form method="post" action="{{ url_for('edit_user', user_id=user.id) }}">
                             <td class="user-id">{{ user.id }}</td>
                             <td><input type="text" name="username" value="{{ user.username }}" class="form-input" required maxlength="50"></td>
-                            <td><input type="password" name="password" placeholder="New password (blank = keep)" class="form-input" autocomplete="new-password"></td>
+                            <td><input type="password" name="password" minlength="8" placeholder="New password (blank = keep)" class="form-input" autocomplete="new-password"></td>
                             <td>
                                 <select name="role" class="form-select">
                                     <option value="admin" {% if user.role=='admin' %}selected{% endif %}>Admin</option>
