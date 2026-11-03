@@ -5,7 +5,7 @@
 <h1 align="center">CIT Community Service Tracker</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.1-5A3EA6?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/version-0.3.0-5A3EA6?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/status-complete-5A3EA6?style=flat-square" alt="status">
   <img src="https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="python">
   <img src="https://img.shields.io/badge/Flask-2.3-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask">
@@ -22,7 +22,7 @@
 
 The CIT Community Service Tracker is a Flask web app for the University of La Salette College of Information Technology. Officers record which students signed in and out of community service events, and the app tracks the service hours each student still owes per semester.
 
-> **Current version: v0.2.1** — documentation update (development team, security policy, badges). Built on v0.2.0: redesigned interface (calmer sidebar, aligned attendance table with pinned headers, consistent pages, phone layout) and uv for setup. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for the full version history.
+> **Current version: v0.3.0** — faster attendance: type or scan a student ID and press Enter to sign them in (again to sign them out), every tick saves right away with no Save button, filters for who hasn't signed in yet, and one button to sign out everyone still there at the end. Events open their sheet from the dashboard or by name, show how many students are done, and default to today's date; students can be promoted together at year end. Built on v0.2.1: documentation update (development team, security policy, badges). Built on v0.2.0: redesigned interface (calmer sidebar, aligned attendance table with pinned headers, consistent pages, phone layout) and uv for setup. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for the full version history.
 
 <p align="center">
   <img src="docs/screenshots/dashboard.png" width="49%" alt="Dashboard: students, events, upcoming events and recent attendance changes">
@@ -49,6 +49,10 @@ Each event has a number of **required hours**. Every student in the event's targ
 | Yes | No | half |
 | No | Yes | half |
 | No | No | full |
+
+## Taking attendance
+
+Open the event from the **Dashboard** (today's events are marked) or click its name on **Events**. Type or scan a student ID, or type enough of a name to leave one student, and press **Enter**: the first time signs them in, the second signs them out. Ticking a box works too. Every change is saved the moment it is made, and **Not signed in / Halfway / Done** show who is left. When the event ends, **Sign out everyone still here** signs out every student who signed in.
 
 A student's **Total CS Hours** is the sum for the selected academic year or semester, and every change is logged in Attendance History.
 
