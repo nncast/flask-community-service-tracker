@@ -135,11 +135,18 @@
             
         </form>
 
+        <!-- Year end: tick the students (or all shown) and promote them together -->
+        <form method="post" action="{{ url_for('promote_student') }}" id="promoteForm" class="bulk-bar">
+            <span id="selectedCount">No students selected</span>
+            <button type="submit" class="btn-secondary" id="promoteSelected" disabled>{{ icon('promote', 16) }} Promote selected</button>
+        </form>
+
         <!-- Students table -->
         <div class="table-container">
             <table class="students-table">
                 <thead>
                     <tr>
+                        <th class="select-col"><input type="checkbox" id="selectAll" aria-label="Select every student shown"></th>
                         <th>ID</th>
                         <th>Student ID</th>
                         <th>First Name</th>
@@ -155,6 +162,12 @@
                     {% for student in students %}
                     <tr>
                         <form method="post" action="{{ url_for('edit_student', student_id=student.id) }}">
+                            <td class="select-col">
+                                {% if student.status != 'graduate' %}
+                                <input type="checkbox" form="promoteForm" name="student_ids" value="{{ student.id }}" class="select-student"
+                                       data-final="{{ 1 if student.year_level.level >= 4 else 0 }}" aria-label="Select {{ student.fname }} {{ student.lname }}">
+                                {% endif %}
+                            </td>
                             <td class="student-id">{{ student.id }}</td>
                             <td>
                                 <input type="text" name="student_id" value="{{ student.student_id }}" class="form-input student-id-input" required maxlength="8">
@@ -343,6 +356,29 @@ document.addEventListener("DOMContentLoaded", function() {
         inp.addEventListener("input", () => autoFormatStudentId(inp));
     });
 
+    // Promote selected: a count on the button and one confirmation for the lot
+    const selectAll = document.getElementById("selectAll");
+    const picks = Array.from(document.querySelectorAll(".select-student"));
+    const promoteButton = document.getElementById("promoteSelected");
+    const selectedCount = document.getElementById("selectedCount");
+    function syncSelection() {
+        const chosen = picks.filter(cb => cb.checked);
+        selectedCount.textContent = chosen.length ? `${chosen.length} selected` : "No students selected";
+        promoteButton.disabled = chosen.length === 0;
+        selectAll.checked = picks.length > 0 && chosen.length === picks.length;
+        selectAll.indeterminate = chosen.length > 0 && chosen.length < picks.length;
+    }
+    selectAll.disabled = picks.length === 0;
+    selectAll.addEventListener("change", () => { picks.forEach(cb => (cb.checked = selectAll.checked)); syncSelection(); });
+    picks.forEach(cb => cb.addEventListener("change", syncSelection));
+    document.getElementById("promoteForm").addEventListener("submit", event => {
+        const chosen = picks.filter(cb => cb.checked);
+        const graduating = chosen.filter(cb => cb.dataset.final === "1").length;
+        const message = `Promote ${chosen.length - graduating} student(s) to the next year level`
+            + (graduating ? ` and mark ${graduating} 4th year student(s) as graduated?` : "?");
+        if (!confirm(message)) event.preventDefault();
+    });
+    syncSelection();
 });
 
 </script>

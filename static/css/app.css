@@ -490,6 +490,9 @@ input[type="checkbox"] { width: 17px; height: 17px; margin: 0; accent-color: var
 .event-filters input { flex: 1; min-width: 200px; }
 .event-filters select { width: auto; min-width: 170px; }
 .filter-form { margin-bottom: 16px; }
+.bulk-bar { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-bottom: 12px; font-size: 13px; color: var(--text-muted); }
+.select-col { width: 36px; text-align: center; }
+.select-col input { width: 18px; height: 18px; accent-color: var(--accent); }
 
 .search-box { position: relative; }
 .search-box .search-input { padding-left: 34px; min-width: 240px; }
@@ -508,7 +511,9 @@ input[type="checkbox"] { width: 17px; height: 17px; margin: 0; accent-color: var
 .event-item, .change-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
 .event-item:first-child, .change-item:first-child { padding-top: 0; }
 .event-item:last-child, .change-item:last-child { border-bottom: 0; padding-bottom: 0; }
-.event-item { display: flex; align-items: center; gap: 14px; }
+.event-item { display: flex; align-items: center; gap: 14px; color: inherit; text-decoration: none; }
+a.event-item:hover h4 { color: var(--accent); }
+.today-tag { color: var(--accent); font-weight: 650; }
 .event-date {
     width: 48px;
     height: 48px;
@@ -543,6 +548,9 @@ input[type="checkbox"] { width: 17px; height: 17px; margin: 0; accent-color: var
 .ay-section .form-hint { margin-bottom: 10px; }
 .semester-cell { color: var(--text-muted); white-space: nowrap; }
 .event-form .btn-primary { margin-top: 4px; }
+.event-link { font-weight: 550; color: var(--text); }
+.event-link:hover { color: var(--accent); }
+.done-cell { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* ----- Event attendance -------------------------------------------------- */
 .student-name { font-weight: 500; }
@@ -558,6 +566,32 @@ input[type="checkbox"] { width: 17px; height: 17px; margin: 0; accent-color: var
 .hours-badge.completed { background: var(--success-soft); color: var(--success); }
 .hours-badge.partial { background: var(--warning-soft); color: var(--warning); }
 .hours-badge.pending { background: var(--danger-soft); color: var(--danger); }
+
+/* Sign in or out by typing or scanning an ID */
+.quick-entry { margin-bottom: 14px; }
+.quick-entry label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.quick-entry input { font-size: 16px; padding: 12px 14px; }
+.quick-status { min-height: 20px; margin-top: 6px; font-size: 13px; color: var(--success); }
+.quick-status.error { color: var(--danger); }
+
+.status-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 36px; padding: 0 14px;
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    background: var(--surface); color: var(--text);
+    font: inherit; font-size: 13.5px; font-weight: 550; cursor: pointer;
+}
+.chip span { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.chip:hover { background: var(--surface-muted); }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip.active span { color: #fff; opacity: 0.85; }
+
+@keyframes row-saved { from { background: var(--success-soft); } to { background: transparent; } }
+@keyframes row-failed { from { background: var(--danger-soft); } to { background: transparent; } }
+tr.just-saved td { animation: row-saved 1.2s ease-out; }
+tr.save-failed td { animation: row-failed 2s ease-out; }
+@media (prefers-reduced-motion: reduce) { tr.just-saved td, tr.save-failed td { animation: none; } }
 
 /* ----- Attendance dashboard table ---------------------------------------- */
 .attendance-table-wrapper .card-header h3 { margin-right: auto; }
@@ -734,6 +768,9 @@ input[type="checkbox"] { width: 17px; height: 17px; margin: 0; accent-color: var
 
 @media (max-width: 560px) {
     .dashboard-header h1 { font-size: 21px; }
+    /* Phones at an event: keep both sign-in columns on screen */
+    .event-attendance-table th:nth-child(3), .event-attendance-table td:nth-child(3) { display: none; }
+    .event-attendance-table th, .event-attendance-table td { padding-left: 8px; padding-right: 8px; }
     .card-header, .card-content { padding-left: 16px; padding-right: 16px; }
     .filters .filter-select, .filters input.filter-select, .event-filters select, .search-box .search-input { min-width: 0; width: 100%; }
     .action-bar { flex-direction: column; align-items: stretch; }

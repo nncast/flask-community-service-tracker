@@ -77,9 +77,8 @@
             </form>
         </div>
 
-        <form method="post" action="{{ url_for('save_all_attendance') }}" id="attendanceForm">
-            <input type="hidden" name="academic_year" value="{{ selected_ay_id or '' }}">
-            <input type="hidden" name="semester" value="{{ selected_sem_id or '' }}">
+        <!-- Each tick is saved right away -->
+        <div id="attendanceGrid" data-save-url="{{ url_for('save_attendance', attendance_id=0)[:-1] }}">
             <div class="card-content">
                 {% if students and events %}
                 <div class="table-container">
@@ -126,11 +125,10 @@
                                     {% set attendance = attendance_map.get((student.id, event.id)) %}
                                     {% if attendance %}
                                         <td class="checkbox-cell group-start" data-event-id="{{ event.id }}">
-                                            <input type="hidden" name="attendance_ids" value="{{ attendance.id }}">
-                                            <input type="checkbox" class="att-in" name="timein_{{ attendance.id }}" aria-label="Time in" {% if attendance.timed_in %}checked{% endif %}>
+                                            <input type="checkbox" class="att-in" data-att-id="{{ attendance.id }}" aria-label="Time in: {{ student.full_name }}, {{ event.name }}" {% if attendance.timed_in %}checked{% endif %}>
                                         </td>
                                         <td class="checkbox-cell" data-event-id="{{ event.id }}">
-                                            <input type="checkbox" class="att-out" name="timeout_{{ attendance.id }}" aria-label="Time out" {% if attendance.timed_out %}checked{% endif %}>
+                                            <input type="checkbox" class="att-out" data-att-id="{{ attendance.id }}" aria-label="Time out: {{ student.full_name }}, {{ event.name }}" {% if attendance.timed_out %}checked{% endif %}>
                                         </td>
                                         <td class="hours-cell" data-event-id="{{ event.id }}">
                                             <span class="hours-value {% if not attendance.accumulated_hours %}done{% endif %}" data-required="{{ event.required_hours }}">{{ "%g"|format(attendance.accumulated_hours or 0) }}</span>
@@ -159,7 +157,7 @@
                 {% endif %}
 
                 <div class="action-bar">
-                    <button type="submit" class="btn-primary" {% if not (students and events) %}disabled{% endif %}>Save All Attendance</button>
+                    <p class="quick-status" id="gridStatus" role="status" aria-live="polite">{% if students and events %}Each tick is saved right away.{% endif %}</p>
 
                     <div class="action-buttons">
                         <a href="{{ url_for('attendance_history') }}" class="btn-secondary">View Hours History</a>
@@ -167,10 +165,11 @@
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='js/attendance_save.js') }}"></script>
 <script>
 const periodForm        = document.getElementById("periodForm");
 const academicYearFilter = document.getElementById("academicYearFilter");
@@ -178,8 +177,8 @@ const semesterFilter    = document.getElementById("semesterFilter");
 const yearLevelFilter   = document.getElementById("yearLevelFilter");
 const eventFilter       = document.getElementById("eventFilter");
 const nameSearchInput   = document.getElementById("nameSearchInput");
-const attendanceForm    = document.getElementById("attendanceForm");
-let unsavedChanges = false;
+const attendanceGrid    = document.getElementById("attendanceGrid");
+const gridStatus        = document.getElementById("gridStatus");
 
 /* Academic year / semester: reload the page with that period's students and events */
 academicYearFilter.addEventListener("change", () => {
@@ -187,11 +186,6 @@ academicYearFilter.addEventListener("change", () => {
     periodForm.submit();
 });
 semesterFilter.addEventListener("change", () => periodForm.submit());
-periodForm.addEventListener("submit", event => {
-    if (unsavedChanges && !confirm("You have unsaved attendance changes. Leave without saving?")) {
-        event.preventDefault();
-    }
-});
 // Enter in the search box filters in place instead of submitting the period form
 nameSearchInput.addEventListener("keydown", event => {
     if (event.key === "Enter") event.preventDefault();
@@ -251,21 +245,29 @@ function recalcGrandTotal() {
 }
 
 document.querySelectorAll(".att-in, .att-out").forEach(cb => {
-    cb.addEventListener("change", () => {
-        unsavedChanges = true;
-        recalcRow(cb.closest("tr"));
+    cb.dataset.saved = cb.checked;
+    cb.addEventListener("change", async () => {
+        const row = cb.closest("tr");
+        const inBox = row.querySelector(`.att-in[data-att-id="${cb.dataset.attId}"]`);
+        const outBox = row.querySelector(`.att-out[data-att-id="${cb.dataset.attId}"]`);
+        recalcRow(row);
         recalcGrandTotal();
+        try {
+            await saveAttendance(attendanceGrid.dataset.saveUrl, cb.dataset.attId, inBox.checked, outBox.checked, "dashboard");
+            inBox.dataset.saved = inBox.checked;
+            outBox.dataset.saved = outBox.checked;
+            gridStatus.textContent = `Saved: ${row.querySelector(".name-col").textContent}`;
+            gridStatus.classList.remove("error");
+        } catch (error) {
+            // Put the boxes back to what the database has
+            inBox.checked = inBox.dataset.saved === "true";
+            outBox.checked = outBox.dataset.saved === "true";
+            recalcRow(row);
+            recalcGrandTotal();
+            gridStatus.textContent = error.message;
+            gridStatus.classList.add("error");
+        }
     });
-});
-
-if (attendanceForm) {
-    attendanceForm.addEventListener("submit", () => { unsavedChanges = false; });
-}
-window.addEventListener("beforeunload", event => {
-    if (unsavedChanges) {
-        event.preventDefault();
-        event.returnValue = "";
-    }
 });
 
 /* Export uses the same filters as the page */

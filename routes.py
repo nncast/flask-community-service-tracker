@@ -4,7 +4,7 @@ from datetime import datetime, date, timedelta
 from functools import wraps
 from io import StringIO
 
-from flask import render_template, request, redirect, url_for, flash, session, g, Response
+from flask import render_template, request, redirect, url_for, flash, session, g, Response, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app, db
@@ -235,7 +235,8 @@ def dashboard():
         upcoming_count=upcoming_count,
         upcoming_events=upcoming_events,
         recent_count=recent_count,
-        recent_changes=recent_changes
+        recent_changes=recent_changes,
+        today=date.today()
     )
 
 
@@ -666,7 +667,7 @@ def events():
     academic_years = AcademicYear.query.order_by(AcademicYear.year.desc()).all()
     return render_template("events.html", events=events_list, event_groups=event_groups,
                            year_levels=year_levels, academic_years=academic_years,
-                           ay_ranges=academic_year_ranges())
+                           ay_ranges=academic_year_ranges(), today=date.today().isoformat())
 
 
 def read_event_form():
@@ -773,22 +774,27 @@ def event_attendance(event_id):
     return render_template("event_attendance.html", event=event, attendances=attendances)
 
 
-@app.route("/events/<int:event_id>/attendance/save", methods=["POST"])
+@app.route("/attendance/<int:attendance_id>", methods=["POST"])
 @login_required
-def save_event_attendance(event_id):
-    event = db.get_or_404(Event, event_id)
-
-    changed = 0
-    for attendance in event.attendance:
-        changed += set_attendance(
-            attendance,
-            bool(request.form.get(f"timed_in_{attendance.id}")),
-            bool(request.form.get(f"timed_out_{attendance.id}")),
-            f"Updated via {event.name} attendance sheet"
-        )
-
+def save_attendance(attendance_id):
+    """One sign-in/out tick, saved the moment it is made on the event sheet or the attendance dashboard."""
+    attendance = db.get_or_404(EventAttendance, attendance_id)
+    reason = ("Updated via attendance dashboard" if request.form.get("via") == "dashboard"
+              else f"Updated via {attendance.event.name} attendance sheet")
+    set_attendance(attendance, request.form.get("timed_in") == "1", request.form.get("timed_out") == "1", reason)
     db.session.commit()
-    flash(f"Attendance saved ({changed} change(s)).", "success")
+    return jsonify(hours=attendance.accumulated_hours)
+
+
+@app.route("/events/<int:event_id>/attendance/sign_out_all", methods=["POST"])
+@login_required
+def sign_out_all(event_id):
+    """End of the event: everyone still signed in is signed out."""
+    event = db.get_or_404(Event, event_id)
+    changed = sum(set_attendance(att, True, True, f"Signed out at the end of {event.name}")
+                  for att in event.attendance if att.timed_in and not att.timed_out)
+    db.session.commit()
+    flash(f"Signed out {changed} student(s).", "success")
     return redirect(url_for("event_attendance", event_id=event_id))
 
 # -------------------- Attendance Dashboard --------------------
@@ -871,29 +877,6 @@ def attendance_dashboard():
     )
 
 
-@app.route("/attendance_dashboard/save", methods=["POST"])
-@login_required
-def save_all_attendance():
-    # Only the records shown on the page are submitted. Updating every record in the
-    # database here would reset attendance for all other academic years/semesters.
-    ids = request.form.getlist("attendance_ids", type=int)
-    changed = 0
-    if ids:
-        for attendance in EventAttendance.query.filter(EventAttendance.id.in_(ids)).all():
-            changed += set_attendance(
-                attendance,
-                bool(request.form.get(f"timein_{attendance.id}")),
-                bool(request.form.get(f"timeout_{attendance.id}")),
-                "Updated via attendance dashboard"
-            )
-
-    db.session.commit()
-    flash(f"Attendance saved ({changed} change(s)).", "success")
-    return redirect(url_for("attendance_dashboard",
-                            academic_year=request.form.get("academic_year", type=int),
-                            semester=request.form.get("semester", type=int)))
-
-
 
 @app.route("/export_attendance")
 @login_required
@@ -970,24 +953,52 @@ def attendance_history():
 
 
 # -------------------- Student Promotion --------------------
+@app.route("/students/promote", methods=["POST"])
 @app.route("/students/promote/<int:student_id>", methods=["POST"])
 @admin_required
-def promote_student(student_id):
-    student = db.get_or_404(Student, student_id)
+def promote_student(student_id=None):
+    """Promote one student (the row button) or every ticked student (Promote selected)."""
+    ids = [student_id] if student_id else request.form.getlist("student_ids", type=int)
+    students = Student.query.filter(Student.id.in_(ids), Student.status != "graduate").all()
+    promoted, graduated, errors = [], [], []
+    for student in students:
+        error = promote(student)
+        if error:
+            errors.append(error)
+        elif student.status == "graduate":
+            graduated.append(student)
+        else:
+            promoted.append(student)
+    db.session.commit()
+
+    if len(students) == 1 and not errors:
+        s = students[0]
+        flash(f"{s.fname} {s.lname} has graduated." if graduated
+              else f"{s.fname} {s.lname} promoted to {s.year_level.label} ({s.year_level.academic_year.year})", "success")
+    elif promoted or graduated:
+        done = [f"promoted {len(promoted)} student(s)" if promoted else "", f"graduated {len(graduated)} student(s)" if graduated else ""]
+        flash(" and ".join(filter(None, done)).capitalize() + ".", "success")
+    for error in sorted(set(errors)):
+        flash(error, "error")
+    if not students:
+        flash("Select at least one student who has not graduated.", "error")
+    return redirect(request.referrer or url_for("students"))
+
+
+def promote(student):
+    """Move a student to the next year level (creating the next academic year and section
+    if needed), or mark a 4th year as graduated. Returns an error message or None."""
     current_yl = student.year_level
     current_ay = current_yl.academic_year
 
     next_level = current_yl.level + 1
     if next_level > 4:
         student.status = "graduate"
-        db.session.commit()
-        flash(f"{student.fname} {student.lname} has graduated.", "success")
-        return redirect(url_for("students"))
+        return None
 
     match = ACADEMIC_YEAR_PATTERN.match(current_ay.year)
     if not match:
-        flash(f'Cannot promote: academic year "{current_ay.year}" is not in the YYYY-YYYY format.', "error")
-        return redirect(url_for("students"))
+        return f'Cannot promote: academic year "{current_ay.year}" is not in the YYYY-YYYY format.'
     start_year, end_year = int(match.group(1)), int(match.group(2))
     next_ay_str = f"{start_year + 1}-{end_year + 1}"
 
@@ -1009,8 +1020,6 @@ def promote_student(student_id):
         db.session.add(next_yl)
         db.session.flush()
 
-    student.year_level_id = next_yl.id
+    student.year_level = next_yl
     bind_student_to_upcoming_events(student, next_yl)
-    db.session.commit()
-    flash(f"{student.fname} {student.lname} promoted to {next_yl.label} ({next_ay.year})", "success")
-    return redirect(url_for("students"))
+    return None

@@ -64,16 +64,16 @@
                 {% if upcoming_events %}
                 <div class="event-list">
                     {% for event in upcoming_events %}
-                    <div class="event-item">
+                    <a class="event-item" href="{{ url_for('event_attendance', event_id=event.id) }}">
                         <div class="event-date">
                             <span class="date-day">{{ event.date.strftime('%d') }}</span>
                             <span class="date-month">{{ event.date.strftime('%b') }}</span>
                         </div>
                         <div class="event-details">
                             <h4>{{ event.name }}</h4>
-                            <p>{{ event.date.strftime('%A, %B %d, %Y') }}</p>
+                            <p>{% if event.date == today %}<strong class="today-tag">Today</strong> · Take attendance{% else %}{{ event.date.strftime('%A, %B %d, %Y') }}{% endif %}</p>
                         </div>
-                    </div>
+                    </a>
                     {% endfor %}
                 </div>
                 {% else %}

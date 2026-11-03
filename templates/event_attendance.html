@@ -18,63 +18,72 @@
 
     <div class="card-content">
         {% if attendances %}
-        <form method="post" action="{{ url_for('save_event_attendance', event_id=event.id) }}">
-            <div class="table-container">
-                <table class="event-attendance-table" data-required-hours="{{ event.required_hours }}">
-                    <thead>
-                        <tr>
-                            <th>Student ID</th>
-                            <th>Name</th>
-                            <th>Year Level</th>
-                            <th class="text-center">Signed In</th>
-                            <th class="text-center">Signed Out</th>
-                            <th class="text-center">Hours Owed</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for att in attendances %}
-                        <tr>
-                            <td class="student-id">{{ att.student.student_id }}</td>
-                            <td class="student-name">{{ att.student.full_name }}</td>
-                            <td class="year-level">{{ att.student.year_level.label }}</td>
-                            <td class="text-center">
-                                <label class="checkbox-wrapper">
-                                    <input type="checkbox" name="timed_in_{{ att.id }}" value="1" {% if att.timed_in %}checked{% endif %}>
-                                    <span class="checkmark"></span>
-                                </label>
-                            </td>
-                            <td class="text-center">
-                                <label class="checkbox-wrapper">
-                                    <input type="checkbox" name="timed_out_{{ att.id }}" value="1" {% if att.timed_out %}checked{% endif %}>
-                                    <span class="checkmark"></span>
-                                </label>
-                            </td>
-                            <td class="text-center hours-cell">
-                                {% if att.timed_in and att.timed_out %}
-                                    <span class="hours-badge completed">0</span>
-                                {% elif att.timed_in or att.timed_out %}
-                                    <span class="hours-badge partial">{{ "%g"|format(event.required_hours / 2) }}</span>
-                                {% else %}
-                                    <span class="hours-badge pending">{{ "%g"|format(event.required_hours) }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <!-- Type or scan an ID and press Enter: signs the student in, then out the next time -->
+        <div class="quick-entry">
+            <label for="quickEntry">Sign in or out</label>
+            <input type="search" id="quickEntry" autocomplete="off" autofocus
+                   placeholder="Student ID or name, then Enter">
+            <p class="quick-status" id="sheetStatus" role="status" aria-live="polite">Each tick is saved right away.</p>
+        </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    <span class="btn-icon">{{ icon('save', 16) }}</span>
-                    Save Attendance
-                </button>
-                <a href="{{ url_for('events') }}" class="btn-secondary">Back to Events</a>
-                {% if event.semester %}
-                <a href="{{ url_for('attendance_dashboard', academic_year=event.semester.academic_year_id, semester=event.semester_id) }}" class="btn-secondary">Attendance Dashboard</a>
-                {% endif %}
-            </div>
-        </form>
+        <div class="status-chips" role="group" aria-label="Show students">
+            <button type="button" class="chip active" data-filter="" aria-pressed="true">All <span data-count="all"></span></button>
+            <button type="button" class="chip" data-filter="pending" aria-pressed="false">Not signed in <span data-count="pending"></span></button>
+            <button type="button" class="chip" data-filter="partial" aria-pressed="false">Halfway <span data-count="partial"></span></button>
+            <button type="button" class="chip" data-filter="completed" aria-pressed="false">Done <span data-count="completed"></span></button>
+        </div>
+
+        <div class="table-container">
+            <table class="event-attendance-table" data-required-hours="{{ event.required_hours }}"
+                   data-save-url="{{ url_for('save_attendance', attendance_id=0)[:-1] }}">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Year Level</th>
+                        <th class="text-center">Signed In</th>
+                        <th class="text-center">Signed Out</th>
+                        <th class="text-center">Hours Owed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for att in attendances %}
+                    <tr data-att-id="{{ att.id }}" data-sid="{{ att.student.student_id|lower }}"
+                        data-search="{{ att.student.student_id|lower }} {{ att.student.full_name|lower }} {{ att.student.fname|lower }} {{ att.student.lname|lower }}">
+                        <td class="student-id">{{ att.student.student_id }}</td>
+                        <td class="student-name">{{ att.student.full_name }}</td>
+                        <td class="year-level">{{ att.student.year_level.label }}</td>
+                        <td class="text-center">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" class="att-in" aria-label="Signed in: {{ att.student.full_name }}" {% if att.timed_in %}checked{% endif %}>
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td class="text-center">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" class="att-out" aria-label="Signed out: {{ att.student.full_name }}" {% if att.timed_out %}checked{% endif %}>
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td class="text-center hours-cell"><span class="hours-badge"></span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="no-match" id="noRowsMatch" hidden>No students match.</p>
+
+        <div class="form-actions">
+            <a href="{{ url_for('sign_out_all', event_id=event.id) }}" class="btn-secondary" data-post
+               data-confirm="Sign out every student who signed in but has not signed out yet?">
+                <span class="btn-icon">{{ icon('clipboard-check', 16) }}</span>
+                Sign out everyone still here
+            </a>
+            <a href="{{ url_for('events') }}" class="btn-secondary">Back to Events</a>
+            {% if event.semester %}
+            <a href="{{ url_for('attendance_dashboard', academic_year=event.semester.academic_year_id, semester=event.semester_id) }}" class="btn-secondary">Attendance Dashboard</a>
+            {% endif %}
+        </div>
         {% else %}
         <div class="empty-state">
             <p>No students are assigned to this event.</p>
@@ -87,6 +96,7 @@
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='js/attendance_save.js') }}"></script>
 <script src="{{ url_for('static', filename='js/event_attendance.js') }}"></script>
 
 {% endblock %}

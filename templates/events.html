@@ -7,12 +7,13 @@
     <p class="subtitle">Create and manage events for student attendance</p>
 </div>
 
-<!-- Create New Event -->
-<div class="content-card">
+<!-- Create New Event: folded away once there are events, since most visits are to take attendance -->
+<div class="content-card collapsible">
     <div class="card-header">
         <h3>Create New Event</h3>
+        <button type="button" class="btn-secondary" data-toggle-target="newEventForm">{{ icon('plus', 16) }} New Event</button>
     </div>
-    <div class="card-content">
+    <div class="card-content" id="newEventForm" {% if events %}hidden{% endif %}>
         <form method="post" action="{{ url_for('add_event') }}" class="event-form">
             <div class="form-group">
                 <label>Event Name</label>
@@ -22,7 +23,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Date</label>
-                    <input type="date" name="date" required>
+                    <input type="date" name="date" required value="{{ today }}">
                 </div>
                 <div class="form-group">
                     <label>Required Hours</label>
@@ -101,7 +102,7 @@
                             <th>Date</th>
                             <th>Target Years</th>
                             <th>Required Hours</th>
-                            <th>Students</th>
+                            <th>Done</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -110,17 +111,17 @@
                             {% for event in sem_events %}
                             <tr class="event-row" data-name="{{ event.name|lower }}" data-semester="{{ sem_name }}">
                                 <td class="semester-cell">{{ sem_name }}</td>
-                                <td>{{ event.name }}</td>
+                                <td><a href="{{ url_for('event_attendance', event_id=event.id) }}" class="event-link">{{ event.name }}</a></td>
                                 <td>{{ event.date.strftime('%b %d, %Y') }}</td>
                                 <td>{{ event.target_label }}</td>
                                 <td>{{ "%g"|format(event.required_hours) }}h</td>
-                                <td>{{ event.attendance|length }}</td>
+                                <td class="done-cell">{{ event.attendance|selectattr('timed_in')|selectattr('timed_out')|list|length }} / {{ event.attendance|length }}</td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn-edit" title="Edit Event">
                                             <span class="btn-icon">{{ icon('pencil', 16) }}</span>
                                         </a>
-                                        <a href="{{ url_for('event_attendance', event_id=event.id) }}" class="btn-attendance" title="View Attendance">
+                                        <a href="{{ url_for('event_attendance', event_id=event.id) }}" class="btn-attendance" title="Take attendance" aria-label="Take attendance for {{ event.name }}">
                                             <span class="btn-icon">{{ icon('clipboard-check', 16) }}</span>
                                         </a>
                                         <a href="{{ url_for('delete_event', event_id=event.id) }}" class="btn-delete" title="Delete Event"
