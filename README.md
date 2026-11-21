@@ -22,7 +22,7 @@
 
 The CIT Community Service Tracker is a Flask web app for the University of La Salette College of Information Technology. Officers record which students signed in and out of community service events, and the app tracks the service hours each student still owes per semester.
 
-> **Current version: v0.3.0** — faster attendance: type or scan a student ID and press Enter to sign them in (again to sign them out), every tick saves right away with no Save button, filters for who hasn't signed in yet, and one button to sign out everyone still there at the end. Events open their sheet from the dashboard or by name, show how many students are done, and default to today's date; students can be promoted together at year end. Built on v0.2.1: documentation update (development team, security policy, badges). Built on v0.2.0: redesigned interface (calmer sidebar, aligned attendance table with pinned headers, consistent pages, phone layout) and uv for setup. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for the full version history.
+> **Current version: v0.3.0** — faster attendance: type or scan a student ID and press Enter to sign them in or out, and every tick saves right away. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for what changed in each version.
 
 <p align="center">
   <img src="docs/screenshots/dashboard.png" width="49%" alt="Dashboard: students, events, upcoming events and recent attendance changes">
