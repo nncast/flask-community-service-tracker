@@ -141,7 +141,7 @@
 
 </div>
 
-<script>
+<script nonce="{{ csp_nonce }}">
 // Suggest semester dates from the typed academic year (Aug-Dec, Jan-May), only filling empty fields
 document.getElementById("year-input").addEventListener("change", function () {
     const match = /^(\d{4})-(\d{4})$/.exec(this.value.trim());
