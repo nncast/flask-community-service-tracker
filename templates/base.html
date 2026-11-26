@@ -100,7 +100,7 @@
         </main>
     </div>
 
-    <script>
+    <script nonce="{{ csp_nonce }}">
         // Sidebar groups (Attendance, Students) expand and collapse
         document.querySelectorAll('.nav-toggle').forEach(toggle => {
             toggle.addEventListener('click', () => {

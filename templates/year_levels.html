@@ -149,7 +149,7 @@
 </div>
 
 
-<script>
+<script nonce="{{ csp_nonce }}">
 // submit form instantly when filter changes
 document.getElementById("yearFilter").addEventListener("change", function () {
     document.getElementById("autoFilterForm").submit();

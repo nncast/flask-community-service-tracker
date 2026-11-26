@@ -16,7 +16,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Academic Year</label>
-                    <select name="academic_year" id="academic_year_select" required onchange="filterYearLevels()">
+                    <select name="academic_year" id="academic_year_select" required data-filter-levels="form">
     <option value="">Select Academic Year</option>
     {% set newest_id = academic_years|map(attribute='id')|max %}
     {% for ay in academic_years %}
@@ -102,7 +102,7 @@
                 
                 <div class="form-group">
                     <label>Academic Year</label>
-                    <select name="academic_year" id="filter_ay" onchange="filterYearLevelsTable()">
+                    <select name="academic_year" id="filter_ay" data-filter-levels="table">
                         <option value="">All Academic Years</option>
                         {% for ay in academic_years %}
                         <option value="{{ ay.id }}" {% if ay_filter|int==ay.id %}selected{% endif %}>{{ ay.year }}</option>
@@ -182,7 +182,7 @@
                                 <input type="text" name="lname" value="{{ student.lname }}" class="form-input" required>
                             </td>
                             <td>
-                                <select name="academic_year" onchange="filterRowYearLevels(this)" class="form-select">
+                                <select name="academic_year" data-filter-levels="row" class="form-select">
                                     {% for ay in academic_years %}
                                     <option value="{{ ay.id }}" {% if student.year_level and student.year_level.academic_year_id == ay.id %}selected{% endif %}>
                                         {{ ay.year }}
@@ -241,7 +241,14 @@
 </div>
 
 
-<script>
+<script nonce="{{ csp_nonce }}">
+// The Content-Security-Policy runs no inline onchange attributes: one listener calls the right filter.
+document.addEventListener("change", function(e) {
+    const kind = e.target.dataset ? e.target.dataset.filterLevels : undefined;
+    if (kind === "form") filterYearLevels();
+    else if (kind === "table") filterYearLevelsTable();
+    else if (kind === "row") filterRowYearLevels(e.target);
+});
 
     document.addEventListener("DOMContentLoaded", function() {
     const filterForm = document.querySelector('.filter-form');

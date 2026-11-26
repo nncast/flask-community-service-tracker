@@ -170,7 +170,7 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/attendance_save.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce }}">
 const periodForm        = document.getElementById("periodForm");
 const academicYearFilter = document.getElementById("academicYearFilter");
 const semesterFilter    = document.getElementById("semesterFilter");
