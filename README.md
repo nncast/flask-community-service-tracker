@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.3.0-5A3EA6?style=flat-square" alt="version">
-  <img src="https://img.shields.io/badge/status-complete-5A3EA6?style=flat-square" alt="status">
+  <img src="https://img.shields.io/badge/status-complete-1A7F37?style=flat-square" alt="status">
   <img src="https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="python">
   <img src="https://img.shields.io/badge/Flask-2.3-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask">
   <img src="https://img.shields.io/badge/SQLite-SQLAlchemy-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite">
