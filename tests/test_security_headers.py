@@ -51,3 +51,40 @@ def test_scripts_are_served_as_javascript():
     client = app.test_client()
     assert client.get("/static/js/event_form.js").mimetype == "text/javascript"
     assert client.get("/static/css/app.css").mimetype == "text/css"
+
+
+STATIC_JS = TEMPLATES.parent / "static" / "js"
+
+
+def test_pages_get_the_obfuscated_scripts():
+    client = app.test_client()
+    client.post("/", data={"username": "admin", "password": "admin123"})
+    page = client.get("/events").get_data(as_text=True)
+    src = re.search(r'src="(/static/js/event_form[^"]*)"', page).group(1)
+    assert ".min.js" in src
+    code = client.get(src).get_data(as_text=True)
+    assert code.startswith("/*! source sha1:")
+    # The policy has no 'unsafe-eval': code that built functions from strings would stop.
+    assert not re.search(r"\beval\s*\(|new Function|\bFunction\s*\(", code)
+
+
+def test_every_copy_is_made_from_its_current_source():
+    """After changing a script: node scripts/obfuscate.mjs (else the readable one is served)."""
+    import hashlib
+    for source in STATIC_JS.glob("*.js"):
+        if source.name.endswith(".min.js"):
+            continue
+        digest = hashlib.sha1(source.read_text(encoding="utf-8").encode("utf-8")).hexdigest()
+        header = (STATIC_JS / source.name.replace(".js", ".min.js")).read_text(encoding="utf-8").splitlines()[0]
+        assert f"sha1:{digest}" in header, f"{source.name}: run node scripts/obfuscate.mjs"
+
+
+def test_a_stale_copy_is_never_served():
+    (STATIC_JS / "zz_probe.js").write_text("function probe() { return 1; }\n", encoding="utf-8")
+    (STATIC_JS / "zz_probe.min.js").write_text("/*! source sha1:0000 */\nold();\n", encoding="utf-8")
+    try:
+        with app.test_request_context():
+            from app import script_url
+            assert "zz_probe.js" in script_url("js/zz_probe.js") and ".min.js" not in script_url("js/zz_probe.js")
+    finally:
+        (STATIC_JS / "zz_probe.js").unlink(); (STATIC_JS / "zz_probe.min.js").unlink()

@@ -1,7 +1,8 @@
+import hashlib
 import mimetypes
 import os
 import secrets
-from flask import Flask, g, request
+from flask import Flask, g, request, url_for
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 from icons import icon
@@ -79,6 +80,25 @@ def security_headers(response):
 db.init_app(app)
 migrate = Migrate(app, db)
 app.jinja_env.globals["icon"] = icon
+
+
+@app.template_global()
+def script_url(path):
+    """A script in static/, as the browser gets it: its obfuscated copy (node scripts/obfuscate.mjs)
+    while that was made from the current source, else the source itself. ?v= is the file's
+    modified time, so browsers don't keep an old copy."""
+    use = path
+    minified = path[:-3] + ".min.js"
+    try:
+        with open(os.path.join(app.static_folder, minified), encoding="utf-8") as f:
+            header = f.readline()
+        with open(os.path.join(app.static_folder, path), encoding="utf-8") as f:     # reads CRLF as LF, like the script
+            digest = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
+        if f"sha1:{digest}" in header:
+            use = minified
+    except OSError:
+        pass
+    return url_for("static", filename=use, v=int(os.path.getmtime(os.path.join(app.static_folder, use))))
 
 # ----------------- 4. Import routes after app creation -----------------
 from routes import *

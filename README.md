@@ -5,7 +5,7 @@
 <h1 align="center">CIT Community Service Tracker</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.3.1-5A3EA6?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/version-0.3.2-5A3EA6?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/status-complete-1A7F37?style=flat-square" alt="status">
   <img src="https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="python">
   <img src="https://img.shields.io/badge/Flask-2.3-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask">
@@ -22,7 +22,7 @@
 
 The CIT Community Service Tracker is a Flask web app for the University of La Salette College of Information Technology. Officers record which students signed in and out of community service events, and the app tracks the service hours each student still owes per semester.
 
-> **Current version: v0.3.1** — security headers on every page (a Content-Security-Policy and the rest securityheaders.com grades). See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for what changed in each version.
+> **Current version: v0.3.2** — security headers on every page, and the browser gets obfuscated JavaScript. See the [Release Notes](https://github.com/nncast/flask-community-service-tracker/releases) for what changed in each version.
 
 <p align="center">
   <img src="docs/screenshots/dashboard.png" width="49%" alt="Dashboard: students, events, upcoming events and recent attendance changes">
